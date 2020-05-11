@@ -4,13 +4,14 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class TpsController : MonoBehaviour
 {
+    public bool isProcess;
     public float speed = 7.5f;
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
     public Transform playerCameraParent;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 60.0f;
-
+    public Animator animator;
     CharacterController characterController;
     Vector3 moveDirection = Vector3.zero;
     Vector2 rotation = Vector2.zero;
@@ -20,6 +21,10 @@ public class TpsController : MonoBehaviour
 
     void Start()
     {
+        if (!isProcess)
+        {
+            this.enabled = false;
+        }
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
     }
@@ -44,8 +49,20 @@ public class TpsController : MonoBehaviour
         // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
         // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
         // as an acceleration (ms^-2)
+        if (Input.GetMouseButtonUp(0))
+        {
+            animator.SetTrigger("Attack1Trigger");
+        }
+        if (moveDirection != Vector3.zero)
+        {
+            animator.SetBool("Moving", true);
+        }
+        else
+        {
+            animator.SetBool("Moving", false);
+        }
         moveDirection.y -= gravity * Time.deltaTime;
-
+  
         // Move the controller
         characterController.Move(moveDirection * Time.deltaTime);
 
