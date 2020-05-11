@@ -4,8 +4,9 @@ using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
 using UnityEngine.UI;
-public class PlayFabLogin : MonoBehaviour
+public class PlayFabController : MonoBehaviour
 {
+    public static PlayFabController singleton;
     private string email;
     private string password;
     private string username;
@@ -18,13 +19,34 @@ public class PlayFabLogin : MonoBehaviour
     public Text createAccountButtonText;
     public Text infoText;
     public GameObject loginPanel;
-    // Start is called before the first frame update
+
+
+    //Stats
+    public float playerHealth;
+    public float playerDamage;
+    public float playerHighScore;
+
+    private void OnEnable()
+    {
+        if (PlayFabController.singleton == null)
+        {
+            PlayFabController.singleton = this;
+        }
+        else
+        {
+            if (PlayFabController.singleton != this)
+            {
+                Destroy(this.gameObject);
+            }
+        }
+        DontDestroyOnLoad(this);
+    }
     void Start()
     {
         userInput.gameObject.SetActive(false);
         confirmPasswordInput.gameObject.SetActive(false);
     }
-
+    #region login
     private void OnLogInSuccess(LoginResult result)
     {
         infoText.text = "Success Login";
@@ -32,12 +54,13 @@ public class PlayFabLogin : MonoBehaviour
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
+        GetStatistics();
     }
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
         Debug.Log("Success Register");
         infoText.text = "Success Register";
-        PlayerPrefs.SetString("Email",email);
+        PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
     }
@@ -64,7 +87,7 @@ public class PlayFabLogin : MonoBehaviour
         {
             OnClickRegister();
         }
-  
+
     }
     public void OnClickCreateAccount()
     {
@@ -84,11 +107,11 @@ public class PlayFabLogin : MonoBehaviour
             createAccountButtonText.text = "CreateAccount";
             isCreateAccount = false;
         }
-       
+
     }
     private void OnClickRegister()
     {
-        if(confirmPasswordInput.text != passwordInput.text)
+        if (confirmPasswordInput.text != passwordInput.text)
         {
             infoText.text = "Password not match.";
             return;
@@ -114,4 +137,54 @@ public class PlayFabLogin : MonoBehaviour
     {
         username = userInput.text;
     }
+    #endregion
+
+    #region request
+    public void SetStats()
+    {
+        PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+        {
+            Statistics = new List<StatisticUpdate>
+            {
+                new StatisticUpdate{ StatisticName = "health",Value = 100 },
+                new StatisticUpdate{ StatisticName = "damage",Value = 10 },
+                new StatisticUpdate{ StatisticName = "highScore",Value = 1000 },
+            }
+        },
+        result => { Debug.Log("Userstatistic updated"); },
+        error => { Debug.Log(error.GenerateErrorReport()); });
+    }
+
+    void GetStatistics()
+    {
+        PlayFabClientAPI.GetPlayerStatistics(
+            new GetPlayerStatisticsRequest(),
+            OnGetStatistics,
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
+    }
+
+    void OnGetStatistics(GetPlayerStatisticsResult result)
+    {
+        Debug.Log("Received the following Statistics:");
+        foreach (var eachStat in result.Statistics)
+        {
+            Debug.Log("Statistic (" + eachStat.StatisticName + "): " + eachStat.Value);
+            switch (eachStat.StatisticName)
+            {
+                case "health":
+                    playerHealth = eachStat.Value;
+                    break;
+                case "damage":
+                    playerDamage = eachStat.Value;
+                    break;
+                case "highScore":
+                    playerHighScore = eachStat.Value;
+                    break;
+            }
+        }
+           
+        
+    }
+    #endregion
 }
