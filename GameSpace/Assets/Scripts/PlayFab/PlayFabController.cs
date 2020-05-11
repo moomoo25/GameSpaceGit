@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using PlayFab;
 using PlayFab.ClientModels;
+using PlayFab.PfEditor.Json;
+using System;
 using UnityEngine;
+using JsonObject = PlayFab.Json.JsonObject;
 using UnityEngine.UI;
 public class PlayFabController : MonoBehaviour
 {
@@ -22,9 +25,9 @@ public class PlayFabController : MonoBehaviour
 
 
     //Stats
-    public float playerHealth;
-    public float playerDamage;
-    public float playerHighScore;
+    public float playerHealth_;
+    public float playerDamage_;
+    public float playerHighScore_;
 
     private void OnEnable()
     {
@@ -46,6 +49,13 @@ public class PlayFabController : MonoBehaviour
         userInput.gameObject.SetActive(false);
         confirmPasswordInput.gameObject.SetActive(false);
     }
+    private void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.P))
+        {
+            GetLeaderboard();
+        }
+    }
     #region login
     private void OnLogInSuccess(LoginResult result)
     {
@@ -63,6 +73,20 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
+        PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = username }, OnDisplayName,OnPlayFabError);
+
+        playerHealth_ = 100;
+        playerDamage_ = 10;
+        playerHighScore_ = 0;
+        StartCloudUpdateStats();
+    }
+    void OnDisplayName(UpdateUserTitleDisplayNameResult result)
+    {
+        Debug.Log(result.DisplayName + "is your new display name");
+    }
+    void OnPlayFabError(PlayFabError error)
+    {
+        Debug.Log(error.GenerateErrorReport());
     }
     private void OnLogInFaill(PlayFabError error)
     {
@@ -138,7 +162,6 @@ public class PlayFabController : MonoBehaviour
         username = userInput.text;
     }
     #endregion
-
     #region request
     public void SetStats()
     {
@@ -173,18 +196,61 @@ public class PlayFabController : MonoBehaviour
             switch (eachStat.StatisticName)
             {
                 case "health":
-                    playerHealth = eachStat.Value;
+                    playerHealth_ = eachStat.Value;
                     break;
                 case "damage":
-                    playerDamage = eachStat.Value;
+                    playerDamage_ = eachStat.Value;
                     break;
                 case "highScore":
-                    playerHighScore = eachStat.Value;
+                    playerHighScore_ = eachStat.Value;
                     break;
             }
         }
            
         
     }
+    public  void StartCloudUpdateStats()
+    {
+        PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest()
+        {
+            FunctionName = "UpdatePlayerStats", // Arbitrary function name (must exist in your uploaded cloud.js file)
+            FunctionParameter = new {playerHealth=playerHealth_,playerDamage=playerDamage_,playerHighScore=playerHighScore_}, // The parameter provided to your function
+            GeneratePlayStreamEvent = true, // Optional - Shows this event in PlayStream
+        }, OnCloudUpdateStats, OnErrorShared);
+    }
+    private static void OnCloudUpdateStats(ExecuteCloudScriptResult result)
+    {
+        // CloudScript returns arbitrary results, so you have to evaluate them one step and one parameter at a time
+        Debug.Log(JsonWrapper.SerializeObject(result.FunctionResult));
+        JsonObject jsonResult = (JsonObject)result.FunctionResult;
+        print(jsonResult.Values);
+        object messageValue;
+        jsonResult.TryGetValue("messageValue", out messageValue); // note how "messageValue" directly corresponds to the JSON values set in CloudScript
+        Debug.Log((string)messageValue);
+    }
+
+    private static void OnErrorShared(PlayFabError error)
+    {
+        Debug.Log(error.GenerateErrorReport());
+    }
     #endregion
+    #region leaderboard
+    public void GetLeaderboard()
+    {
+        var requestLeaderboard = new GetLeaderboardRequest { StartPosition = 0, StatisticName = "highScore", MaxResultsCount = 20 };
+        PlayFabClientAPI.GetLeaderboard(requestLeaderboard, OnGetLeaderboard, OnErrorLeaderboard);
+    }
+    void OnGetLeaderboard(GetLeaderboardResult result)
+    {
+      // print 1st highScore  Debug.Log(result.Leaderboard[0].StatValue);
+        foreach (PlayerLeaderboardEntry player in result.Leaderboard)
+        {
+            Debug.Log(player.DisplayName + " : " + player.StatValue);
+        }
+    }
+    void OnErrorLeaderboard(PlayFabError error)
+    {
+        Debug.Log(error.GenerateErrorReport());
+    }
+    #endregion leaderboard
 }
