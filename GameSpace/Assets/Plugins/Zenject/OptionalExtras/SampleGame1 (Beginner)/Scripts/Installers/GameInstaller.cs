@@ -23,7 +23,7 @@ namespace Zenject.Asteroids
             // https://github.com/modesttree/zenject#installers
             //
             //Container.Install<MyOtherInstaller>();
-
+            
             // Install the main game
             InstallAsteroids();
             InstallShip();
@@ -47,7 +47,7 @@ namespace Zenject.Asteroids
             // IFixedTickable, or AsteroidManager as inputs will receive the same instance of AsteroidManager.
             // We create multiple bindings for ITickable, so any dependencies that reference this type must be lists of ITickable.
             Container.BindInterfacesAndSelfTo<AsteroidManager>().AsSingle();
-
+       
             // Note that the above binding is equivalent to the following:
             //Container.Bind(typeof(ITickable), typeof(IFixedTickable), typeof(AsteroidManager)).To<AsteroidManager>.AsSingle();
 

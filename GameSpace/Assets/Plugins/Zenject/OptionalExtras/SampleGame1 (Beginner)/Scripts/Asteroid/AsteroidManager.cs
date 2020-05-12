@@ -31,7 +31,7 @@ namespace Zenject.Asteroids
             _asteroidFactory = asteroidFactory;
             _level = level;
         }
-
+    
         public IEnumerable<Asteroid> Asteroids
         {
             get { return _asteroids; }

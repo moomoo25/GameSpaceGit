@@ -9,6 +9,7 @@ public interface IGameManager
 public class GameManager : IGameManager
 {
    
+  //  public ;
     public void GameManagerSetting()
     {
         Debug.Log("AStar");

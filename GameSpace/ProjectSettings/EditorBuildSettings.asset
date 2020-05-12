@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Plugins/Zenject/OptionalExtras/SampleGame1 (Beginner)/Asteroids.unity
+    guid: 1fbbab4d6f8dcbd4eb46075a8f4a68e4
+  - enabled: 1
+    path: Assets/555.unity
+    guid: 3f37c196105bf9a45a5b72a1c0e9a2cf
   m_configObjects: {}
