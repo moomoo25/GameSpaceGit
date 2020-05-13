@@ -24,7 +24,7 @@ namespace Zenject.Asteroids
         public AsteroidSettings Asteroid;
         public AudioHandler.Settings AudioHandler;
         public GameInstaller.Settings GameInstaller;
-
+        
         // We use nested classes here to group related settings together
         [Serializable]
         public class ShipSettings

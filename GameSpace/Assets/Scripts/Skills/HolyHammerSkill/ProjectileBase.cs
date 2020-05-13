@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HolyHammer : DamageBase
+public class ProjectileBase : DamageBase
 {
     public float speed = 1;
     private void Update()

@@ -8,8 +8,14 @@ public class TpsController : MonoBehaviour
     public bool isProcess;
     public bool isDead;
     public Transform centerTransform;
-    public PlayerStat playerStat;
+    public string playerClass;
+    public DefaultInstaller.PlayerStat playerStat;
     public SkillBase skill;
+
+    [Header("BasicAttack")]
+    public BoxCollider damageCollider;
+    public ProjectileBase magicAttack;
+    public ProjectileBase arrowAttack;
     [Header("ControllerSetting")]
     public float speed = 7.5f;
     public float jumpSpeed = 8.0f;
@@ -17,9 +23,11 @@ public class TpsController : MonoBehaviour
     public Transform playerCameraParent;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 60.0f;
-    public Animator animator;
-    
- 
+    public GameObject knightModel;
+    public GameObject mageModel;
+    public GameObject archerModel;
+    private Animator animator;
+
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
     private Vector2 rotation = Vector2.zero;
@@ -28,7 +36,7 @@ public class TpsController : MonoBehaviour
     [HideInInspector]
     public bool canMove = true;
     public bool canAttack = true;
-
+    public MyGameSettingInstaller.Skills[] skillstree;
     float hpRegenCounter = 0;
     float staminaRegenCounter = 0;
     float manaRegenCounter = 0;
@@ -37,20 +45,53 @@ public class TpsController : MonoBehaviour
     {
         uIManager = uIManager_;
     }
+    [Inject]
+    public void SetUpSkill(MyGameSettingInstaller.Skills[] refSkills)
+    {
+        skillstree = refSkills; // can use 
+    }
     void Start()
     {
-        if (!isProcess)
-        {
-            this.enabled = false;
-        }
         uIManager.SetPlayerStat(this.playerStat); // UpdatePlayerStat
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
+        damageCollider.enabled = false;
+        SetModel(playerClass);
     }
-
+    public void SetModel(string playerClass_)
+    {
+        GameObject model = null;
+        knightModel.SetActive(false);
+        archerModel.SetActive(false);
+        mageModel.SetActive(false);
+        if (playerClass_ == "Warrior")
+        {
+            model = knightModel;
+            model.SetActive(true);
+           
+        }
+        else if (playerClass_ == "Mage")
+        {
+            model = mageModel;
+            model.SetActive(true);
+           
+        }
+        else
+        {
+            model = archerModel;
+            model.SetActive(true);
+        }
+        animator = model.GetComponent<Animator>();
+    }
     void Update()
     {
-
+        if (isDead)
+        {
+            knightModel.SetActive(false);
+            archerModel.SetActive(false);
+            mageModel.SetActive(false);
+            return;
+        }
         if (canAttack == false)
         {
             attackCounter += Time.deltaTime;
@@ -111,7 +152,7 @@ public class TpsController : MonoBehaviour
 
     void Movement()
     {
-        if (canAttack == false || isDead)
+        if (canAttack == false || isDead || !isProcess)
         {
             return;
         }
@@ -132,16 +173,32 @@ public class TpsController : MonoBehaviour
                 {
                     animator.SetTrigger("Attack1Trigger");
                     playerStat.stamina -= playerStat.attackUseStamina;
+                    Vector3 v = GetCenterTransform().position + GetCenterTransform().forward;
+                    if (playerClass == "Warrior")
+                    {
+                        damageCollider.enabled = true;
+                        Invoke("CloseDamageCollider", 0.1f);
+                    }
+                    else if (playerClass == "Mage")
+                    {
+                        ProjectileBase magic = Instantiate(magicAttack, v, GetCenterTransform().rotation);
+                        magic.SetUpOwner(this);
+                    }
+                    else if (playerClass == "Archer")
+                    {   
+                        ProjectileBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
+                        arrow.SetUpOwner(this);
+                    }
                     canAttack = false;
                 }
 
             }
             if (Input.GetMouseButtonUp(1))
             {
-                if (playerStat.skillUseMana <= playerStat.mana)
+                if (skill.useMana <= playerStat.mana)
                 {
                     animator.SetTrigger("Attack1Trigger");
-                    playerStat.mana -= playerStat.skillUseMana;
+                    playerStat.mana -= skill.useMana;
                     canAttack = false;
                     OnCallSkill();
                 }
@@ -181,6 +238,10 @@ public class TpsController : MonoBehaviour
             transform.eulerAngles = new Vector2(0, rotation.y);
         }
     }
+    void CloseDamageCollider()
+    {
+        damageCollider.enabled = false;
+    }
     public Transform GetCenterTransform()
     {
         return centerTransform;
@@ -198,24 +259,4 @@ public class TpsController : MonoBehaviour
     }
 }
 
-[System.Serializable]
-public class PlayerStat
-{
-    public string race;
 
-    public float currentHealth;
-    public float maxHealth;
-    public float regenHealth;
-
-    public float stamina;
-    public float maxStamina;
-    public float regenStamina;
-
-    public float mana;
-    public float maxMana;
-    public float regenMana;
-
-    public float playerDamage;
-    public float attackUseStamina;
-    public float skillUseMana;
-}

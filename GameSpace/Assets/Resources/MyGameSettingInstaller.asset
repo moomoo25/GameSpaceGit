@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 013bd3cf76e671c4f8bdd251e335d83b, type: 3}
+  m_Name: MyGameSettingInstaller
+  m_EditorClassIdentifier: 
+  playerController: {fileID: 0}
+  playerStats:
+  - characterClass: Warrior
+    currentHealth: 150
+    maxHealth: 150
+    regenHealth: 8
+    stamina: 100
+    maxStamina: 100
+    regenStamina: 10
+    mana: 50
+    maxMana: 50
+    regenMana: 5
+    playerDamage: 35
+    attackUseStamina: 25
+  - characterClass: Mage
+    currentHealth: 90
+    maxHealth: 90
+    regenHealth: 5
+    stamina: 80
+    maxStamina: 80
+    regenStamina: 8
+    mana: 0
+    maxMana: 0
+    regenMana: 0
+    playerDamage: 0
+    attackUseStamina: 8
+  - characterClass: Archer
+    currentHealth: 0
+    maxHealth: 0
+    regenHealth: 0
+    stamina: 0
+    maxStamina: 0
+    regenStamina: 0
+    mana: 0
+    maxMana: 0
+    regenMana: 0
+    playerDamage: 0
+    attackUseStamina: 0
+  skills:
+  - skillObj: {fileID: 5173610262638960114, guid: 2b930bbbfcbacae489413b68f0d4a41f,
+      type: 3}
+    skillName: Arrow Rain
+  - skillObj: {fileID: 8840666134436492667, guid: 0551741f2a4cdc948a830f5560d5d587,
+      type: 3}
+    skillName: Holy Hammer
+  - skillObj: {fileID: 8479838191647243308, guid: d0672794222da4f478daae1ce7c91c79,
+      type: 3}
+    skillName: LaserBeam
+  races:
+  - racesName: Elf
+    racesImage: {fileID: 0}
+  - racesName: Warrior
+    racesImage: {fileID: 0}
+  - racesName: HighElf
+    racesImage: {fileID: 0}

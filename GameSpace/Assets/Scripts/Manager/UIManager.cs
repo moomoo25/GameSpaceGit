@@ -4,17 +4,17 @@ using UnityEngine;
 
 public interface IUIManager
 {
-    PlayerStat GetPlayerStat();
-    void SetPlayerStat(PlayerStat playerStat_);
+    DefaultInstaller.PlayerStat  GetPlayerStat();
+    void SetPlayerStat(DefaultInstaller.PlayerStat playerStat_);
 }
 public class UIManager : IUIManager
 {
-    public PlayerStat playerStat;
-    public PlayerStat GetPlayerStat()
+    public DefaultInstaller.PlayerStat playerStat;
+    public DefaultInstaller.PlayerStat GetPlayerStat()
     {
         return playerStat;
     }
-    public void SetPlayerStat(PlayerStat playerStat_)
+    public void SetPlayerStat(DefaultInstaller.PlayerStat playerStat_)
     {
         playerStat = playerStat_;
     }
