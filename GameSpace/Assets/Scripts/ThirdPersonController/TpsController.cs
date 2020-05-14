@@ -9,6 +9,7 @@ public class TpsController : MonoBehaviour
     public bool isDead;
     public Transform centerTransform;
     public string playerClass;
+    public string playerRace;
     public DefaultInstaller.PlayerStat playerStat;
     public SkillBase skill;
 
@@ -27,7 +28,7 @@ public class TpsController : MonoBehaviour
     public GameObject mageModel;
     public GameObject archerModel;
     private Animator animator;
-
+    private DefaultInstaller.PlayerStat[] refStats;
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
     private Vector2 rotation = Vector2.zero;
@@ -36,19 +37,26 @@ public class TpsController : MonoBehaviour
     [HideInInspector]
     public bool canMove = true;
     public bool canAttack = true;
-    public MyGameSettingInstaller.Skills[] skillstree;
+  
     float hpRegenCounter = 0;
     float staminaRegenCounter = 0;
     float manaRegenCounter = 0;
+    private MyGameSettingInstaller.Skills[] refSkill;
     [Inject]
     public void SettingUIManager(UIManager uIManager_)
     {
         uIManager = uIManager_;
     }
     [Inject]
+    public void SetUpRace(DefaultInstaller.PlayerStat[] playerStats_)
+    {
+        refStats = playerStats_; // can use 
+    
+    }
+    [Inject]
     public void SetUpSkill(MyGameSettingInstaller.Skills[] refSkills)
     {
-        skillstree = refSkills; // can use 
+        refSkill = refSkills; // can use 
     }
     void Start()
     {
@@ -56,21 +64,35 @@ public class TpsController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
         damageCollider.enabled = false;
-        SetModel(playerClass);
+        SetModel();
+        SetRace();
     }
-    public void SetModel(string playerClass_)
+    public void SetRace()
     {
+        for (int i = 0; i < refStats.Length; i++)
+        {
+            if (refStats[i].characterRace == playerRace)
+            {
+                playerStat = refStats[i];
+                uIManager.InitSetRace(playerStat.iconRace, playerStat.characterRace);
+            }
+        
+        }
+    }
+    public void SetModel()
+    {
+       
         GameObject model = null;
         knightModel.SetActive(false);
         archerModel.SetActive(false);
         mageModel.SetActive(false);
-        if (playerClass_ == "Warrior")
+        if (playerClass == "Warrior")
         {
             model = knightModel;
             model.SetActive(true);
            
         }
-        else if (playerClass_ == "Mage")
+        else if (playerClass == "Mage")
         {
             model = mageModel;
             model.SetActive(true);

@@ -14,41 +14,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerController: {fileID: 0}
   playerStats:
-  - characterClass: Warrior
-    currentHealth: 150
-    maxHealth: 150
+  - iconRace: {fileID: 21300000, guid: 3eab4bec7e5c87d4aba9cbee5d8162b4, type: 3}
+    characterRace: Human
+    currentHealth: 185
+    maxHealth: 185
     regenHealth: 8
     stamina: 100
     maxStamina: 100
     regenStamina: 10
     mana: 50
     maxMana: 50
-    regenMana: 5
+    regenMana: 12
     playerDamage: 35
-    attackUseStamina: 25
-  - characterClass: Mage
-    currentHealth: 90
-    maxHealth: 90
-    regenHealth: 5
-    stamina: 80
-    maxStamina: 80
+    attackUseStamina: 0
+  - iconRace: {fileID: 21300000, guid: 9929bfb58815cff45bce402d030b1751, type: 3}
+    characterRace: Orc
+    currentHealth: 220
+    maxHealth: 220
+    regenHealth: 9
+    stamina: 120
+    maxStamina: 120
     regenStamina: 8
-    mana: 0
-    maxMana: 0
-    regenMana: 0
-    playerDamage: 0
-    attackUseStamina: 8
-  - characterClass: Archer
-    currentHealth: 0
-    maxHealth: 0
-    regenHealth: 0
-    stamina: 0
-    maxStamina: 0
-    regenStamina: 0
-    mana: 0
-    maxMana: 0
-    regenMana: 0
-    playerDamage: 0
+    mana: 50
+    maxMana: 50
+    regenMana: 1
+    playerDamage: 40
+    attackUseStamina: 0
+  - iconRace: {fileID: 21300000, guid: 54361b75c5ab5ff439a8da149fc35562, type: 3}
+    characterRace: Elf
+    currentHealth: 140
+    maxHealth: 140
+    regenHealth: 7
+    stamina: 90
+    maxStamina: 90
+    regenStamina: 15
+    mana: 80
+    maxMana: 80
+    regenMana: 20
+    playerDamage: 35
     attackUseStamina: 0
   skills:
   - skillObj: {fileID: 5173610262638960114, guid: 2b930bbbfcbacae489413b68f0d4a41f,
@@ -60,10 +63,3 @@ MonoBehaviour:
   - skillObj: {fileID: 8479838191647243308, guid: d0672794222da4f478daae1ce7c91c79,
       type: 3}
     skillName: LaserBeam
-  races:
-  - racesName: Elf
-    racesImage: {fileID: 0}
-  - racesName: Warrior
-    racesImage: {fileID: 0}
-  - racesName: HighElf
-    racesImage: {fileID: 0}

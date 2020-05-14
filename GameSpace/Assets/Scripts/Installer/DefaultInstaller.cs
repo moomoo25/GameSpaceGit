@@ -1,6 +1,6 @@
 using UnityEngine;
 using Zenject;
-
+using UnityEngine.UI;
 public class DefaultInstaller : MonoInstaller
 {
     [Inject]
@@ -14,7 +14,8 @@ public class DefaultInstaller : MonoInstaller
     [System.Serializable]
     public class PlayerStat
     {
-        public string characterClass;
+        public Sprite iconRace;
+        public string characterRace;
         public float currentHealth;
         public float maxHealth;
         public float regenHealth;
