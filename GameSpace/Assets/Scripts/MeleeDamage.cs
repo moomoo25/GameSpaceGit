@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MeleeDamage : DamageBase
 {
+
     private void Awake()
     {
         if (transform.parent.GetComponent<TpsController>())
@@ -18,7 +19,7 @@ public class MeleeDamage : DamageBase
         {
             if (target != GetOwner())
             {
-                print("Damage");
+                DoDamage(target);
             }
         }
      

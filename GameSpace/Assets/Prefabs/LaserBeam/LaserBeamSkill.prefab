@@ -43,5 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06ed7daf1646da1448cb481e4ad580c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useMana: 36
   laserbeam: {fileID: 8805249835635075879, guid: fd63267efdd77e34086c70f72bb7d4fd,
     type: 3}

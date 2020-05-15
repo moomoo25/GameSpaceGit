@@ -10,13 +10,26 @@ public class TpsController : MonoBehaviour
     public Transform centerTransform;
     public string playerClass;
     public string playerRace;
-    public DefaultInstaller.PlayerStat playerStat;
-    public SkillBase skill;
-
+    public float health;
+    public float maxHealth;
+    private float regenHealth;
+    public float stamina;
+    public float maxStamina;
+    private float regenStamina;
+    public float mana;
+    public float maxMana;
+    private float regenMana;
+    private float playerDamage;
+    private float attackUseStamina;
+    public bool canAttack = true;
+    [Header("Skill")]
+    public SkillBase playerSkill;
+    public float cooldownSkill;
+    public float maxCooldownSkill;
     [Header("BasicAttack")]
-    public BoxCollider damageCollider;
-    public ProjectileBase magicAttack;
-    public ProjectileBase arrowAttack;
+    public DamageBase damageCollider;
+    public DamageBase magicAttack;
+    public DamageBase arrowAttack;
     [Header("ControllerSetting")]
     public float speed = 7.5f;
     public float jumpSpeed = 8.0f;
@@ -34,38 +47,65 @@ public class TpsController : MonoBehaviour
     private Vector2 rotation = Vector2.zero;
     private UIManager uIManager;
     private float attackCounter;
+    private BoxCollider meleeDamageCollider;
+
     [HideInInspector]
     public bool canMove = true;
-    public bool canAttack = true;
-  
+
+
+    public ParticleSystem bloodParticle;
+
     float hpRegenCounter = 0;
     float staminaRegenCounter = 0;
     float manaRegenCounter = 0;
     private MyGameSettingInstaller.Skills[] refSkill;
+    private MyGameSettingInstaller.AllClass[] classes;
     [Inject]
     public void SettingUIManager(UIManager uIManager_)
     {
         uIManager = uIManager_;
     }
     [Inject]
-    public void SetUpRace(DefaultInstaller.PlayerStat[] playerStats_)
+    public void SettingPlayerStat(DefaultInstaller.PlayerStat[] playerStats_)
     {
         refStats = playerStats_; // can use 
-    
     }
     [Inject]
-    public void SetUpSkill(MyGameSettingInstaller.Skills[] refSkills)
+    public void SetUpSkillAndClass(MyGameSettingInstaller.Skills[] refSkills, MyGameSettingInstaller.AllClass[] c)
     {
         refSkill = refSkills; // can use 
+        classes = c;
+    }
+    private void Awake()
+    {
+        SetClass();
+        SetRace();
+        SetSkill("Laser Beam");
     }
     void Start()
     {
-        uIManager.SetPlayerStat(this.playerStat); // UpdatePlayerStat
+        if (isProcess)
+        {
+            BarsSetting.singleton.player = this;
+        }
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
-        damageCollider.enabled = false;
-        SetModel();
-        SetRace();
+        meleeDamageCollider = damageCollider.GetComponent<BoxCollider>();
+        meleeDamageCollider.enabled = false;
+   
+    }
+    public void SetSkill(string skillName)
+    {
+        for (int i = 0; i < refSkill.Length; i++)
+        {
+            if(refSkill[i].skillName == skillName)
+            {
+                playerSkill = refSkill[i].skillObj;
+                maxCooldownSkill = refSkill[i].skillCooldown;
+                cooldownSkill = maxCooldownSkill;
+                uIManager.SetPlayerSkill(refSkill[i]);
+            }
+        }
     }
     public void SetRace()
     {
@@ -73,45 +113,74 @@ public class TpsController : MonoBehaviour
         {
             if (refStats[i].characterRace == playerRace)
             {
-                playerStat = refStats[i];
-                uIManager.InitSetRace(playerStat.iconRace, playerStat.characterRace);
+                health = refStats[i].currentHealth;
+                maxHealth = health;
+                regenHealth = refStats[i].regenHealth;
+                stamina = refStats[i].stamina;
+                maxStamina = refStats[i].maxStamina;
+                regenStamina = refStats[i].regenStamina;
+                mana = refStats[i].mana;
+                maxMana = mana;
+                regenMana = refStats[i].regenMana;
+                attackUseStamina = refStats[i].attackUseStamina;
+                uIManager.InitSetRace(refStats[i].iconRace, refStats[i].characterRace);
+             
             }
         
         }
     }
-    public void SetModel()
+    public void SetClass()
     {
-       
         GameObject model = null;
         knightModel.SetActive(false);
         archerModel.SetActive(false);
         mageModel.SetActive(false);
-        if (playerClass == "Warrior")
+        for (int i = 0; i < classes.Length; i++)
         {
-            model = knightModel;
-            model.SetActive(true);
-           
+            if (playerClass == classes[i].className)
+            {
+                playerDamage = classes[i].classDamage;
+            }
+             if (playerClass == "Warrior")
+            {
+                model = knightModel;
+                model.SetActive(true);
+
+            }
+            else if (playerClass == "Mage")
+            {
+                model = mageModel;
+                model.SetActive(true);
+
+            }
+            else
+            {
+                model = archerModel;
+                model.SetActive(true);
+            }
         }
-        else if (playerClass == "Mage")
-        {
-            model = mageModel;
-            model.SetActive(true);
-           
-        }
-        else
-        {
-            model = archerModel;
-            model.SetActive(true);
-        }
+  
+   
         animator = model.GetComponent<Animator>();
     }
     void Update()
     {
+        
+        if (animator != null)
+        {
+            CheckIfPlayerIsDead();
+        }
+
         if (isDead)
         {
+            GetComponent<CharacterController>().enabled = false;
             knightModel.SetActive(false);
             archerModel.SetActive(false);
             mageModel.SetActive(false);
+            return;
+        }
+        if (!isProcess)
+        {
             return;
         }
         if (canAttack == false)
@@ -126,50 +195,60 @@ public class TpsController : MonoBehaviour
 
         Movement();
 
-
-        if(playerStat.currentHealth < playerStat.maxHealth)
+        if(cooldownSkill<= maxCooldownSkill)
+        {
+            cooldownSkill += Time.deltaTime;
+          
+        }
+        else
+        {
+            cooldownSkill = maxCooldownSkill;
+        }
+        uIManager.cooldownTime = 1 - (cooldownSkill / maxCooldownSkill);
+        if(health < maxHealth)
         {
             hpRegenCounter += Time.deltaTime;
             if(hpRegenCounter > 1)
             {
-                playerStat.currentHealth += playerStat.regenHealth;
+                health += regenHealth;
                 hpRegenCounter = 0;
             }
         }
         else
         {
-            playerStat.currentHealth = playerStat.maxHealth;
+            health = maxHealth;
         }
 
 
-        if (playerStat.stamina < playerStat.maxStamina)
+        if (stamina < maxStamina)
         {
             staminaRegenCounter += Time.deltaTime;
             if (staminaRegenCounter > 1)
             {
-                playerStat.stamina+= playerStat.regenStamina;
+                stamina += regenStamina;
                 staminaRegenCounter = 0;
             }
         }
         else
         {
-            playerStat.stamina = playerStat.maxStamina;
+             stamina = maxStamina;
         }
-        if (playerStat.mana < playerStat.maxMana)
+        if (mana < maxMana)
         {
             manaRegenCounter += Time.deltaTime;
             if (manaRegenCounter >1 )
             {
-                playerStat.mana+= playerStat.regenMana;
+                mana+= regenMana;
                 manaRegenCounter = 0;
             }
         }
         else
         {
-            playerStat.mana = playerStat.maxMana;
+             mana = maxMana;
         }
 
-        uIManager.SetPlayerStat(this.playerStat); // UpdatePlayerStat
+
+  
     }
 
     void Movement()
@@ -191,25 +270,28 @@ public class TpsController : MonoBehaviour
 
             if (Input.GetMouseButtonUp(0))
             {
-                if (playerStat.attackUseStamina <= playerStat.stamina)
+                if (attackUseStamina <= stamina)
                 {
                     animator.SetTrigger("Attack1Trigger");
-                    playerStat.stamina -= playerStat.attackUseStamina;
+                    stamina -= attackUseStamina;
                     Vector3 v = GetCenterTransform().position + GetCenterTransform().forward;
                     if (playerClass == "Warrior")
                     {
-                        damageCollider.enabled = true;
-                        Invoke("CloseDamageCollider", 0.1f);
+                        Invoke("OpenDamageCollider", 0.2f);
+                        Invoke("CloseDamageCollider", 0.26f);
+                        damageCollider.damage = playerDamage;
                     }
                     else if (playerClass == "Mage")
                     {
-                        ProjectileBase magic = Instantiate(magicAttack, v, GetCenterTransform().rotation);
+                        DamageBase magic = Instantiate(magicAttack, v, GetCenterTransform().rotation);
                         magic.SetUpOwner(this);
+                        magic.damage = playerDamage;
                     }
                     else if (playerClass == "Archer")
-                    {   
-                        ProjectileBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
+                    {
+                        DamageBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
                         arrow.SetUpOwner(this);
+                        arrow.damage = playerDamage;
                     }
                     canAttack = false;
                 }
@@ -217,12 +299,18 @@ public class TpsController : MonoBehaviour
             }
             if (Input.GetMouseButtonUp(1))
             {
-                if (skill.useMana <= playerStat.mana)
+              
+                if (playerSkill.useMana <=mana)
                 {
-                    animator.SetTrigger("Attack1Trigger");
-                    playerStat.mana -= skill.useMana;
-                    canAttack = false;
-                    OnCallSkill();
+                    if (cooldownSkill == maxCooldownSkill)
+                    {
+                        animator.SetTrigger("Attack1Trigger");
+                        mana -= playerSkill.useMana;
+                        canAttack = false;
+                        OnCallSkill();
+                        cooldownSkill = 0;
+                    }
+                  
                 }
 
             }
@@ -260,9 +348,13 @@ public class TpsController : MonoBehaviour
             transform.eulerAngles = new Vector2(0, rotation.y);
         }
     }
-    void CloseDamageCollider()
+    public void OpenDamageCollider()
     {
-        damageCollider.enabled = false;
+        meleeDamageCollider.enabled = true;
+    }
+    public void CloseDamageCollider()
+    {
+        meleeDamageCollider.enabled = false;
     }
     public Transform GetCenterTransform()
     {
@@ -270,11 +362,18 @@ public class TpsController : MonoBehaviour
     }
     public void OnCallSkill()
     {
-        skill.OnSkillAction(this);
+        playerSkill.OnSkillAction(this);
+    }
+    public void PlayBloodEffect()
+    {
+        if (!bloodParticle.isPlaying)
+        {
+            bloodParticle.Play();
+        }
     }
     public void CheckIfPlayerIsDead()
     {
-        if (playerStat.currentHealth <= 0)
+        if (health <= 0)
         {
             isDead = true;
         }

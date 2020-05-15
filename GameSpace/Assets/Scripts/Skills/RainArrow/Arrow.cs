@@ -23,10 +23,18 @@ public class Arrow : DamageBase
     }
     private void OnTriggerEnter(Collider other)
     {
-        print(other.transform.tag);
         if (other.transform.tag == "Ground")
         {
             isStop = true;
+        }
+
+        TpsController target = other.GetComponent<TpsController>();
+        if (target != null)
+        {
+            if (target != GetOwner())
+            {
+                DoDamage(target);
+            }
         }
     }
 }

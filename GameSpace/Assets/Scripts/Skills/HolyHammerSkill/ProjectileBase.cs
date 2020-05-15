@@ -13,11 +13,12 @@ public class ProjectileBase : DamageBase
    
     private void OnTriggerEnter(Collider other)
     {
-        TpsController player = other.GetComponent<TpsController>();
-        if (player != null)
+        TpsController target = other.GetComponent<TpsController>();
+        if (target != null)
         {
-            if (player != GetOwner())
+            if (target != GetOwner())
             {
+                DoDamage(target);
                 Destroy(gameObject);
             }
         }

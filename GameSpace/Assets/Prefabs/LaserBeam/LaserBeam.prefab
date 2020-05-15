@@ -148,3 +148,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fbe5c1812f903e4cb37e3083aaecb08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damage: 9

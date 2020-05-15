@@ -50,7 +50,7 @@ public class LaserBeam : DamageBase
                     {
                         if (canDoDamage)
                         {
-                            print("c");
+                            DoDamage(target);
                             canDoDamage = false;
                         }
                        

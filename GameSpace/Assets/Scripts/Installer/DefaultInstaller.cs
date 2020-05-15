@@ -28,7 +28,6 @@ public class DefaultInstaller : MonoInstaller
         public float maxMana;
         public float regenMana;
 
-        public float playerDamage;
         public float attackUseStamina;
     }
 }

@@ -72,7 +72,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4edded06d26bb7843a0ddf04a3093baa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.8
+  damage: 15
+  speed: 0.7
 --- !u!1001 &8383143068444717913
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -130,15 +131,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 478468, guid: 802986766a97b4a108b97eb5fdf6e02f, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 478468, guid: 802986766a97b4a108b97eb5fdf6e02f, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 478468, guid: 802986766a97b4a108b97eb5fdf6e02f, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 802986766a97b4a108b97eb5fdf6e02f, type: 3}

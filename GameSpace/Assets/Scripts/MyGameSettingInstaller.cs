@@ -9,17 +9,26 @@ public class MyGameSettingInstaller : ScriptableObjectInstaller<MyGameSettingIns
     public GameObject playerController;
     public DefaultInstaller.PlayerStat[] playerStats;
     public Skills[] skills;
+    public AllClass[] playerClasses;
     [Serializable]
     public class Skills
     {
-        public SkillBase skillObj;
         public string skillName;
+        public Sprite skillIcon;
+        public float skillCooldown;
+        public SkillBase skillObj;
     }
-
+    [Serializable]
+    public class AllClass
+    {
+        public string className;
+        public float classDamage;
+    }
     public override void InstallBindings()
     {
         Container.BindInstance(skills);
         Container.BindInstance(playerStats);
+        Container.BindInstance(playerClasses);
         Container.BindInstance(playerController);
     }
 }

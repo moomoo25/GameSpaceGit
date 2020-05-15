@@ -5,7 +5,9 @@ using UnityEngine.UI;
 using Zenject;
 public class BarsSetting : MonoBehaviour
 {
-     private UIManager uiManager;
+    public static BarsSetting singleton;
+    public TpsController player;
+    private UIManager uiManager;
     private GameManager gameManager;
     [Header("Race")]
     public Image raceIcon;
@@ -28,21 +30,27 @@ public class BarsSetting : MonoBehaviour
         uiManager.SetRaceIconAndText(raceIcon, raceName);
     }
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-     
+        singleton = this;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (uiManager != null)
+        if (player != null)
         {
-            staminaBar.transform.localScale = new Vector2(uiManager.GetPlayerStat().stamina / uiManager.GetPlayerStat().maxStamina, 1);
-            staminaText.text = "" + (int)uiManager.GetPlayerStat().stamina + "/" + uiManager.GetPlayerStat().maxStamina;
+            SetBar(staminaBar, staminaText, player.stamina, player.maxStamina);
+            SetBar(hpBar, hpText, player.health, player.maxHealth);
+            SetBar(manaBar, manaText, player.mana, player.maxMana);
         }
     
    
     }
  
+    void SetBar(Image bar,Text valueText , float value , float maxValue)
+    {
+        bar.transform.localScale = new Vector2(value / maxValue, 1);
+        valueText.text = "" + (int)value + "/" + maxValue;
+    }
 }
