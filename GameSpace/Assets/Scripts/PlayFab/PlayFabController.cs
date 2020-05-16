@@ -7,6 +7,7 @@ using System;
 using UnityEngine;
 using JsonObject = PlayFab.Json.JsonObject;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 public class PlayFabController : MonoBehaviour
 {
     public static PlayFabController singleton;
@@ -14,6 +15,7 @@ public class PlayFabController : MonoBehaviour
     private string password;
     private string username;
     private bool isCreateAccount;
+    public string leaderBoardText;
     public InputField userInput;
     public InputField emailInput;
     public InputField passwordInput;
@@ -65,6 +67,8 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
         GetStatistics();
+        GetLeaderboard();
+        SceneManager.LoadScene(1);
     }
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
@@ -74,11 +78,12 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
         PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = username }, OnDisplayName,OnPlayFabError);
-
+        GetLeaderboard();
         playerHealth_ = 100;
         playerDamage_ = 10;
         playerHighScore_ = 0;
         StartCloudUpdateStats();
+        SceneManager.LoadScene(1);
     }
     void OnDisplayName(UpdateUserTitleDisplayNameResult result)
     {
@@ -242,10 +247,17 @@ public class PlayFabController : MonoBehaviour
     }
     void OnGetLeaderboard(GetLeaderboardResult result)
     {
-      // print 1st highScore  Debug.Log(result.Leaderboard[0].StatValue);
+        // print 1st highScore  Debug.Log(result.Leaderboard[0].StatValue);
+        int i = 0;
         foreach (PlayerLeaderboardEntry player in result.Leaderboard)
         {
+            i++;
             Debug.Log(player.DisplayName + " : " + player.StatValue);
+            leaderBoardText += player.DisplayName + " : " + player.StatValue + "\n";
+            if (i == 5)
+            {
+                break;
+            }
         }
     }
     void OnErrorLeaderboard(PlayFabError error)

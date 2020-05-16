@@ -6,9 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Plugins/Zenject/OptionalExtras/SampleGame1 (Beginner)/Asteroids.unity
-    guid: 1fbbab4d6f8dcbd4eb46075a8f4a68e4
+    path: Assets/Scenes/LoginScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/555.unity
-    guid: 3f37c196105bf9a45a5b72a1c0e9a2cf
+    path: Assets/Scenes/CharacterCreate.unity
+    guid: ccdf9ef5567f45b46ae85bb67c4ff2f8
+  - enabled: 1
+    path: Assets/Scenes/RPG_Scene.unity
+    guid: b9d9a79b43a721c41b876e9053e58e4b
   m_configObjects: {}

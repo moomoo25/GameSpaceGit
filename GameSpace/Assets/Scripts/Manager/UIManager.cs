@@ -42,7 +42,9 @@ public class UIManager : IUIManager
     }
     public void SetPlayerSkill(MyGameSettingInstaller.Skills skill_)
     {
+    
         this.skills = skill_;
+        Debug.Log(this.skills.skillName);
     }
     public MyGameSettingInstaller.Skills GetPlayerSkill()
     {

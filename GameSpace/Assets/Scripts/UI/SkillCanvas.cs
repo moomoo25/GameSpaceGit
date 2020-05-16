@@ -24,6 +24,7 @@ public class SkillCanvas : MonoBehaviour
         }
         else
         {
+            skill = uIManager.GetPlayerSkill();
             SkillIcon.sprite = skill.skillIcon;
             skillName.text = skill.skillName;
         }

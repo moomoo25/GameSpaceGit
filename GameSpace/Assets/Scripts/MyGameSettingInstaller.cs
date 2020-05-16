@@ -10,6 +10,7 @@ public class MyGameSettingInstaller : ScriptableObjectInstaller<MyGameSettingIns
     public DefaultInstaller.PlayerStat[] playerStats;
     public Skills[] skills;
     public AllClass[] playerClasses;
+    public Color[] playerColor;
     [Serializable]
     public class Skills
     {
@@ -24,11 +25,13 @@ public class MyGameSettingInstaller : ScriptableObjectInstaller<MyGameSettingIns
         public string className;
         public float classDamage;
     }
+    
     public override void InstallBindings()
     {
         Container.BindInstance(skills);
         Container.BindInstance(playerStats);
         Container.BindInstance(playerClasses);
         Container.BindInstance(playerController);
+        Container.BindInstance(playerColor);
     }
 }

@@ -19,7 +19,7 @@ public class TpsController : MonoBehaviour
     public float mana;
     public float maxMana;
     private float regenMana;
-    private float playerDamage;
+    public float playerDamage;
     private float attackUseStamina;
     public bool canAttack = true;
     [Header("Skill")]
@@ -40,7 +40,10 @@ public class TpsController : MonoBehaviour
     public GameObject knightModel;
     public GameObject mageModel;
     public GameObject archerModel;
+    private GameObject model = null;
     private Animator animator;
+
+    public Color[] characterColor;
     private DefaultInstaller.PlayerStat[] refStats;
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
@@ -76,11 +79,17 @@ public class TpsController : MonoBehaviour
         refSkill = refSkills; // can use 
         classes = c;
     }
+    [Inject]
+    public void SetupColor(Color[] c)
+    {
+        characterColor = c;
+    }
     private void Awake()
     {
-        SetClass();
-        SetRace();
-        SetSkill("Laser Beam");
+    
+        SetRace("Human"); 
+        // SetClass();
+       // SetSkill("Laser Beam");
     }
     void Start()
     {
@@ -107,11 +116,11 @@ public class TpsController : MonoBehaviour
             }
         }
     }
-    public void SetRace()
+    public void SetRace(string r)
     {
         for (int i = 0; i < refStats.Length; i++)
         {
-            if (refStats[i].characterRace == playerRace)
+            if (refStats[i].characterRace == r)
             {
                 health = refStats[i].currentHealth;
                 maxHealth = health;
@@ -129,31 +138,33 @@ public class TpsController : MonoBehaviour
         
         }
     }
-    public void SetClass()
+    public void SetClass(string playerClass_)
     {
-        GameObject model = null;
+   
         knightModel.SetActive(false);
         archerModel.SetActive(false);
         mageModel.SetActive(false);
+  
         for (int i = 0; i < classes.Length; i++)
         {
-            if (playerClass == classes[i].className)
+     
+            if (playerClass_ == classes[i].className)
             {
                 playerDamage = classes[i].classDamage;
             }
-             if (playerClass == "Warrior")
+             if (playerClass_ == "Warrior")
             {
                 model = knightModel;
                 model.SetActive(true);
 
             }
-            else if (playerClass == "Mage")
+            else if (playerClass_ == "Mage")
             {
                 model = mageModel;
                 model.SetActive(true);
 
             }
-            else
+            else if(playerClass_ == "Archer")
             {
                 model = archerModel;
                 model.SetActive(true);
@@ -162,6 +173,10 @@ public class TpsController : MonoBehaviour
   
    
         animator = model.GetComponent<Animator>();
+    }
+    public void SetColor(int colorIndex)
+    {
+        model.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_Color", characterColor[colorIndex]);
     }
     void Update()
     {

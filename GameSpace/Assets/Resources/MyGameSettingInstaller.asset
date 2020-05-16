@@ -53,12 +53,12 @@ MonoBehaviour:
   skills:
   - skillName: Arrow Rain
     skillIcon: {fileID: 21300000, guid: 726d3a77c7bea9c468328999dd0dbb25, type: 3}
-    skillCooldown: 5
+    skillCooldown: 3
     skillObj: {fileID: 5173610262638960114, guid: 2b930bbbfcbacae489413b68f0d4a41f,
       type: 3}
   - skillName: Holy Hammer
     skillIcon: {fileID: 21300000, guid: ee309869e0f72864c947ec018ef73287, type: 3}
-    skillCooldown: 5
+    skillCooldown: 4
     skillObj: {fileID: 8840666134436492667, guid: 0551741f2a4cdc948a830f5560d5d587,
       type: 3}
   - skillName: Laser Beam
@@ -73,3 +73,7 @@ MonoBehaviour:
     classDamage: 31
   - className: Archer
     classDamage: 27
+  playerColor:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0.015279897, g: 0.754717, b: 0.010679938, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
