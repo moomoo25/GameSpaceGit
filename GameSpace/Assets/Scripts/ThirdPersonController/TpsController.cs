@@ -10,6 +10,7 @@ public class TpsController : MonoBehaviour
     public Transform centerTransform;
     public string playerClass;
     public string playerRace;
+    public int colorIndex;
     public float health;
     public float maxHealth;
     private float regenHealth;
@@ -23,6 +24,7 @@ public class TpsController : MonoBehaviour
     private float attackUseStamina;
     public bool canAttack = true;
     [Header("Skill")]
+    public string playerSkillName;
     public SkillBase playerSkill;
     public float cooldownSkill;
     public float maxCooldownSkill;
@@ -86,10 +88,21 @@ public class TpsController : MonoBehaviour
     }
     private void Awake()
     {
-    
-        SetRace("Human"); 
-        // SetClass();
-       // SetSkill("Laser Beam");
+        if (PlayFabController.singleton != null)
+        {
+            SetRace(PlayFabController.singleton.playerRace);
+            SetClass(PlayFabController.singleton.playerClass);
+            SetSkill(PlayFabController.singleton.playerSkill);
+            colorIndex =PlayFabController.singleton.playerColorIndex;
+        }
+        else
+        {
+            SetRace("Human");
+            SetClass("Warrior") ;
+            SetSkill("Laser Beam");
+            colorIndex = 0;
+        }
+        SetColor(colorIndex);
     }
     void Start()
     {
@@ -110,6 +123,7 @@ public class TpsController : MonoBehaviour
             if(refSkill[i].skillName == skillName)
             {
                 playerSkill = refSkill[i].skillObj;
+                playerSkillName = refSkill[i].skillName;
                 maxCooldownSkill = refSkill[i].skillCooldown;
                 cooldownSkill = maxCooldownSkill;
                 uIManager.SetPlayerSkill(refSkill[i]);
@@ -122,6 +136,7 @@ public class TpsController : MonoBehaviour
         {
             if (refStats[i].characterRace == r)
             {
+                playerRace = r;
                 health = refStats[i].currentHealth;
                 maxHealth = health;
                 regenHealth = refStats[i].regenHealth;
@@ -140,7 +155,8 @@ public class TpsController : MonoBehaviour
     }
     public void SetClass(string playerClass_)
     {
-   
+
+        playerClass = playerClass_;
         knightModel.SetActive(false);
         archerModel.SetActive(false);
         mageModel.SetActive(false);
@@ -170,12 +186,13 @@ public class TpsController : MonoBehaviour
                 model.SetActive(true);
             }
         }
-  
-   
+
+        SetColor(colorIndex);
         animator = model.GetComponent<Animator>();
     }
-    public void SetColor(int colorIndex)
-    {
+    public void SetColor(int colorIndex_)
+    {    
+        colorIndex = colorIndex_;
         model.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_Color", characterColor[colorIndex]);
     }
     void Update()

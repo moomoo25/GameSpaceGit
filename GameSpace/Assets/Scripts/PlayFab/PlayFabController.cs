@@ -15,6 +15,7 @@ public class PlayFabController : MonoBehaviour
     private string password;
     private string username;
     private bool isCreateAccount;
+    private string myId = null;
     public string leaderBoardText;
     public InputField userInput;
     public InputField emailInput;
@@ -25,12 +26,20 @@ public class PlayFabController : MonoBehaviour
     public Text infoText;
     public GameObject loginPanel;
 
-
+    private bool isSetPlayerData;
+    private bool isGetPlayerData;
+    private bool isSuccessOperaion;
     //Stats
     public float playerHealth_;
     public float playerDamage_;
     public float playerHighScore_;
 
+    //Data
+    public string playerClass;
+    public string playerRace;
+    public string playerSkill;
+    private bool onload;
+    public int playerColorIndex;
     private void OnEnable()
     {
         if (PlayFabController.singleton == null)
@@ -55,7 +64,19 @@ public class PlayFabController : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.P))
         {
-            GetLeaderboard();
+            GetPlayerData();
+        }
+        if (Input.GetKeyUp(KeyCode.X))
+        {
+            SetUserData("Warrior", "Human", "Holy Hammer", "0");
+        }
+        if (isGetPlayerData && isSetPlayerData)
+        {
+            if (isSuccessOperaion == false)
+            {
+                SceneManager.LoadScene(1);
+                isSuccessOperaion = true;
+            }
         }
     }
     #region login
@@ -68,7 +89,10 @@ public class PlayFabController : MonoBehaviour
         loginPanel.SetActive(false);
         GetStatistics();
         GetLeaderboard();
-        SceneManager.LoadScene(1);
+        myId = result.PlayFabId;
+        isSetPlayerData = true;
+        StartCoroutine(LoadNextScene(false));
+    
     }
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
@@ -77,13 +101,24 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
-        PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = username }, OnDisplayName,OnPlayFabError);
+        PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = username }, OnDisplayName, OnPlayFabError);
         GetLeaderboard();
         playerHealth_ = 100;
         playerDamage_ = 10;
         playerHighScore_ = 0;
         StartCloudUpdateStats();
-        SceneManager.LoadScene(1);
+        myId = result.PlayFabId;
+        StartCoroutine(LoadNextScene(true));
+     
+   
+    }
+    IEnumerator LoadNextScene(bool isRegister)
+    {
+        if(isRegister)
+        SetUserData("Warrior", "Human", "Holy Hammer", "0");
+        yield return new WaitForEndOfFrame();
+        GetPlayerData();
+     
     }
     void OnDisplayName(UpdateUserTitleDisplayNameResult result)
     {
@@ -211,15 +246,15 @@ public class PlayFabController : MonoBehaviour
                     break;
             }
         }
-           
-        
+
+
     }
-    public  void StartCloudUpdateStats()
+    public void StartCloudUpdateStats()
     {
         PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest()
         {
             FunctionName = "UpdatePlayerStats", // Arbitrary function name (must exist in your uploaded cloud.js file)
-            FunctionParameter = new {playerHealth=playerHealth_,playerDamage=playerDamage_,playerHighScore=playerHighScore_}, // The parameter provided to your function
+            FunctionParameter = new { playerHealth = playerHealth_, playerDamage = playerDamage_, playerHighScore = playerHighScore_ }, // The parameter provided to your function
             GeneratePlayStreamEvent = true, // Optional - Shows this event in PlayStream
         }, OnCloudUpdateStats, OnErrorShared);
     }
@@ -265,4 +300,82 @@ public class PlayFabController : MonoBehaviour
         Debug.Log(error.GenerateErrorReport());
     }
     #endregion leaderboard
+    #region PlayerData
+    public void GetPlayerData()
+    {
+        PlayFabClientAPI.GetUserData(new GetUserDataRequest()
+        {
+            PlayFabId = myId,
+            Keys = null
+
+        }, UserDataSuccess, UserDataFailed);
+    }
+    void UserDataSuccess(GetUserDataResult result)
+    {
+        if(result.Data==null || !result.Data.ContainsKey("class")|| !result.Data.ContainsKey("race") || !result.Data.ContainsKey("skill") || !result.Data.ContainsKey("colorIndex"))
+        {
+
+        }
+        else
+        {
+            playerClass = result.Data["class"].Value;
+            playerRace =result.Data["race"].Value;
+            playerSkill= result.Data["skill"].Value;
+
+            playerColorIndex = int.Parse(result.Data["colorIndex"].Value);
+           isGetPlayerData = true;
+        }
+    }
+    void UserDataFailed(PlayFabError error)
+    {
+        Debug.Log(error.GenerateErrorReport());
+    }
+    public void SetUserData(string playerClass,string playerRace,string playerSkill,string playerColorIndex)
+    {
+        PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest()
+        {
+            Data = new Dictionary<string, string>()
+        {
+            {"class",playerClass},
+            {"race",playerRace},
+            {"skill",playerSkill},
+            {"colorIndex",playerColorIndex}
+        }
+        }, SetDataSuccess, UserDataFailed);
+      
+    }
+    void SetDataSuccess(UpdateUserDataResult result)
+    {
+        isSetPlayerData = true;
+        Debug.Log(result.DataVersion);
+    }
+    public void EditPlayerData(string playerClass, string playerRace, string playerSkill, string playerColorIndex)
+    {
+        if (onload == false)
+        {
+            isSetPlayerData = false;
+            isGetPlayerData = false;
+            print("onLoad");
+            StartCoroutine(EditData(playerClass, playerRace, playerSkill, playerColorIndex));
+            onload = true;
+        }
+
+    }
+    IEnumerator EditData(string playerClass, string playerRace, string playerSkill, string playerColorIndex)
+    {
+            SetUserData(playerClass, playerRace, playerSkill, playerColorIndex);
+        while (isSetPlayerData == false)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+      
+        GetPlayerData();
+        while (isGetPlayerData == false)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        print("SaveData");
+        onload = false;
+    }
+    #endregion
 }
