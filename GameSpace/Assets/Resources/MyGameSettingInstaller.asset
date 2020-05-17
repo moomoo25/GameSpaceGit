@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 013bd3cf76e671c4f8bdd251e335d83b, type: 3}
   m_Name: MyGameSettingInstaller
   m_EditorClassIdentifier: 
-  playerController: {fileID: 0}
+  playerController: {fileID: 7343233753010651778, guid: c36a882f9134bda46824f9c55e1c3446,
+    type: 3}
   playerStats:
   - iconRace: {fileID: 21300000, guid: 3eab4bec7e5c87d4aba9cbee5d8162b4, type: 3}
     characterRace: Human

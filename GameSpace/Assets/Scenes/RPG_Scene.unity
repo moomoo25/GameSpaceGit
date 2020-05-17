@@ -1980,6 +1980,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3143630821582400034, guid: 3cb9bfd5a074f2d4caf212713d669fa0,
+        type: 3}
+      propertyPath: viewIdField
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1861612629720082067, guid: 3cb9bfd5a074f2d4caf212713d669fa0,
         type: 3}
       propertyPath: m_Name

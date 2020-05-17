@@ -10,7 +10,7 @@ public interface IGameManager
 }
 public class GameManager : IGameManager
 {
-   
+   public Transform[] spawnpoints;
   //  public ;
     public void GameManagerSetting()
     {

@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 using Zenject;
 [RequireComponent(typeof(CharacterController))]
-public class TpsController : MonoBehaviour
+public class TpsController : MonoBehaviourPunCallbacks
 {
     public bool isProcess;
     public bool isDead;
@@ -65,56 +66,63 @@ public class TpsController : MonoBehaviour
     float manaRegenCounter = 0;
     private MyGameSettingInstaller.Skills[] refSkill;
     private MyGameSettingInstaller.AllClass[] classes;
-    [Inject]
+
     public void SettingUIManager(UIManager uIManager_)
     {
         uIManager = uIManager_;
     }
-    [Inject]
-    public void SettingPlayerStat(DefaultInstaller.PlayerStat[] playerStats_)
+    public void SetPlayerModelInfo(DefaultInstaller.PlayerStat[] refStats_, MyGameSettingInstaller.Skills[] refSkill_, Color[] characterColor_, MyGameSettingInstaller.AllClass[] classes_)
     {
-        refStats = playerStats_; // can use 
-    }
-    [Inject]
-    public void SetUpSkillAndClass(MyGameSettingInstaller.Skills[] refSkills, MyGameSettingInstaller.AllClass[] c)
-    {
-        refSkill = refSkills; // can use 
-        classes = c;
-    }
-    [Inject]
-    public void SetupColor(Color[] c)
-    {
-        characterColor = c;
+        refStats = refStats_;
+        refSkill = refSkill_;
+        characterColor = characterColor_;
+        classes = classes_;
+        SetUpPlayer();
     }
     private void Awake()
     {
-        if (PlayFabController.singleton != null)
-        {
-            SetRace(PlayFabController.singleton.playerRace);
-            SetClass(PlayFabController.singleton.playerClass);
-            SetSkill(PlayFabController.singleton.playerSkill);
-            colorIndex =PlayFabController.singleton.playerColorIndex;
-        }
-        else
-        {
-            SetRace("Human");
-            SetClass("Warrior") ;
-            SetSkill("Laser Beam");
-            colorIndex = 0;
-        }
-        SetColor(colorIndex);
+
     }
+    
     void Start()
     {
         if (isProcess)
         {
             BarsSetting.singleton.player = this;
         }
+        else
+        {
+            playerCameraParent.gameObject.SetActive(false);
+        }
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
         meleeDamageCollider = damageCollider.GetComponent<BoxCollider>();
         meleeDamageCollider.enabled = false;
-   
+        PhotonView p = GetComponent<PhotonView>();
+        if (p.IsMine == false)
+        {
+            GameSetUpController.singleton.forceSetUp(this);
+        }
+
+    }
+    void SetUpPlayer()
+    {
+        if (PlayFabController.singleton != null)
+        {
+            SetRace(PlayFabController.singleton.playerRace);
+            SetClass(PlayFabController.singleton.playerClass);
+            SetSkill(PlayFabController.singleton.playerSkill);
+            colorIndex = PlayFabController.singleton.playerColorIndex;
+        }
+        else
+        {
+            SetRace("Human");
+            SetClass("Warrior");
+            SetSkill("Laser Beam");
+            colorIndex = 0;
+            print("9999");
+        }
+        SetColor(colorIndex);
     }
     public void SetSkill(string skillName)
     {
@@ -126,6 +134,7 @@ public class TpsController : MonoBehaviour
                 playerSkillName = refSkill[i].skillName;
                 maxCooldownSkill = refSkill[i].skillCooldown;
                 cooldownSkill = maxCooldownSkill;
+                if(uIManager!=null)
                 uIManager.SetPlayerSkill(refSkill[i]);
             }
         }
@@ -147,6 +156,7 @@ public class TpsController : MonoBehaviour
                 maxMana = mana;
                 regenMana = refStats[i].regenMana;
                 attackUseStamina = refStats[i].attackUseStamina;
+                if(uIManager!=null)
                 uIManager.InitSetRace(refStats[i].iconRace, refStats[i].characterRace);
              
             }
@@ -236,7 +246,11 @@ public class TpsController : MonoBehaviour
         {
             cooldownSkill = maxCooldownSkill;
         }
-        uIManager.cooldownTime = 1 - (cooldownSkill / maxCooldownSkill);
+        if (uIManager != null)
+        {
+            uIManager.cooldownTime = 1 - (cooldownSkill / maxCooldownSkill);
+        }
+   
         if(health < maxHealth)
         {
             hpRegenCounter += Time.deltaTime;

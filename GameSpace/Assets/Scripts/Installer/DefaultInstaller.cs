@@ -10,7 +10,9 @@ public class DefaultInstaller : MonoInstaller
     {
         Container.BindInterfacesAndSelfTo<GameManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<UIManager>().AsSingle();
+
     }
+
     [System.Serializable]
     public class PlayerStat
     {
@@ -30,4 +32,5 @@ public class DefaultInstaller : MonoInstaller
 
         public float attackUseStamina;
     }
+
 }
