@@ -1,59 +1,66 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Photon.Pun;
+﻿using Photon.Pun;
 using System.IO;
-using Zenject;
+using UnityEngine;
+
 public class PhotonPlayer : MonoBehaviour
 {
-    PhotonView pv;
+    private PhotonView pv;
+    private GameObject playerPref;
     public GameObject myAvatar;
     private UIManager uIManager;
+    private GameManager gameManager;
     private Transform spawnPoint;
 
     private DefaultInstaller.PlayerStat[] refStats;
     private MyGameSettingInstaller.Skills[] refSkill;
     private Color[] characterColor;
     private MyGameSettingInstaller.AllClass[] classes;
-    // Start is called before the first frame update
-    void Start()
-    {
 
+    // Start is called before the first frame update
+    private void Awake()
+    {
         pv = GetComponent<PhotonView>();
-       // int spawnPicker = Random.Range(0,gameManager.spawnpoints.Length);
+    }
+
+    private void Start()
+    {
         if (pv.IsMine)
         {
-            myAvatar= PhotonNetwork.Instantiate(Path.Combine("PlayerPrefs", "Player"), Vector3.zero, Quaternion.identity,0);
-            myAvatar.transform.position = spawnPoint.position;
-            myAvatar.transform.rotation = spawnPoint.rotation;
+            SetSpawnPoint();
+            myAvatar = PhotonNetwork.Instantiate(Path.Combine("PlayerPrefs", "Player"), spawnPoint.position, spawnPoint.rotation, 0);
             TpsController tpsController = myAvatar.GetComponent<TpsController>();
-            tpsController.SettingUIManager(this.uIManager);
-            tpsController.SetPlayerModelInfo(refStats,refSkill,characterColor,classes);
+            tpsController.SettingUIManager(uIManager);
             tpsController.isProcess = true;
+            tpsController.SetUpPlayer("Human", TestController.singleton.cac, TestController.singleton.skill, TestController.singleton.colorIn);
+      
+            myAvatar.transform.position = spawnPoint.transform.position;
+            myAvatar.transform.rotation = spawnPoint.transform.rotation;
         }
-      
-      
-
     }
-    public void SetUiManager(UIManager uIManager_)
+
+    public void SetUpCharacter(GameManager gameManager_, UIManager uIManager_, GameObject player_, DefaultInstaller.PlayerStat[] refStats_, MyGameSettingInstaller.Skills[] refSkill_, Color[] characterColor_, MyGameSettingInstaller.AllClass[] classes_)
     {
         uIManager = uIManager_;
-    }
-    public void SetSpawnPoint(Transform spawnPoint_)
-    {
-        spawnPoint = spawnPoint_;
+        gameManager = gameManager_;
 
-    }
-    public void SetPlayerModelInfo(DefaultInstaller.PlayerStat[] refStats_, MyGameSettingInstaller.Skills[] refSkill_,Color[] characterColor_, MyGameSettingInstaller.AllClass[] classes_)
-    {
+        playerPref = player_;
         refStats = refStats_;
         refSkill = refSkill_;
         characterColor = characterColor_;
         classes = classes_;
     }
-    // Update is called once per frame
-    void Update()
+
+    public void SetSpawnPoint()
     {
-        
+        spawnPoint = gameManager.spawnpoints[PhotonNetwork.PlayerList.Length - 1];
+    }
+
+    public void SetPlayerModelInfo()
+    {
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
     }
 }

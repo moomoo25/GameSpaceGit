@@ -8,6 +8,11 @@ public class QuickStartLobbyController : MonoBehaviourPunCallbacks
     public GameObject quickStartButton;
     public GameObject quickCancleButton;
     public int roomSize;
+    private void Awake()
+    {
+        quickStartButton.SetActive(false);
+        quickCancleButton.SetActive(false);
+    }
     public override void OnConnectedToMaster()
     {
         PhotonNetwork.AutomaticallySyncScene = true;

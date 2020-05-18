@@ -10,7 +10,9 @@ public interface IGameManager
 }
 public class GameManager : IGameManager
 {
-   public Transform[] spawnpoints;
+    public List<TpsController> tpsControllers = new List<TpsController>();
+
+    public Transform[] spawnpoints;
   //  public ;
     public void GameManagerSetting()
     {

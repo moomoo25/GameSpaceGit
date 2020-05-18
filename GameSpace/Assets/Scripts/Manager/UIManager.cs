@@ -14,6 +14,8 @@ public interface IUIManager
 }
 public class UIManager : IUIManager
 {
+   
+
     private GameManager gameManager;
     public Image raceIcon;
     public Text raceName;

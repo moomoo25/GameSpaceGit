@@ -40,6 +40,7 @@ public class PlayFabController : MonoBehaviour
     public string playerSkill;
     private bool onload;
     public int playerColorIndex;
+
     private void OnEnable()
     {
         if (PlayFabController.singleton == null)

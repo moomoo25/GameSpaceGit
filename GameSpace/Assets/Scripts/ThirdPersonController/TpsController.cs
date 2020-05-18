@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Photon.Pun;
 using UnityEngine;
-using Photon.Pun;
-using Zenject;
+
 [RequireComponent(typeof(CharacterController))]
-public class TpsController : MonoBehaviourPunCallbacks
+public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
 {
     public bool isProcess;
     public bool isDead;
@@ -24,17 +22,23 @@ public class TpsController : MonoBehaviourPunCallbacks
     public float playerDamage;
     private float attackUseStamina;
     public bool canAttack = true;
+
     [Header("Skill")]
     public string playerSkillName;
+
     public SkillBase playerSkill;
     public float cooldownSkill;
     public float maxCooldownSkill;
+
     [Header("BasicAttack")]
     public DamageBase damageCollider;
+
     public DamageBase magicAttack;
     public DamageBase arrowAttack;
+
     [Header("ControllerSetting")]
     public float speed = 7.5f;
+
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
     public Transform playerCameraParent;
@@ -51,46 +55,48 @@ public class TpsController : MonoBehaviourPunCallbacks
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
     private Vector2 rotation = Vector2.zero;
+    private GameManager gameManager;
     private UIManager uIManager;
     private float attackCounter;
     private BoxCollider meleeDamageCollider;
+    private bool isMoving;
 
     [HideInInspector]
     public bool canMove = true;
 
-
+    private bool sad;
     public ParticleSystem bloodParticle;
 
-    float hpRegenCounter = 0;
-    float staminaRegenCounter = 0;
-    float manaRegenCounter = 0;
+    private float hpRegenCounter = 0;
+    private float staminaRegenCounter = 0;
+    private float manaRegenCounter = 0;
     private MyGameSettingInstaller.Skills[] refSkill;
     private MyGameSettingInstaller.AllClass[] classes;
-
+    private PhotonView pv;
+    TestController tt;
     public void SettingUIManager(UIManager uIManager_)
     {
         uIManager = uIManager_;
     }
-    public void SetPlayerModelInfo(DefaultInstaller.PlayerStat[] refStats_, MyGameSettingInstaller.Skills[] refSkill_, Color[] characterColor_, MyGameSettingInstaller.AllClass[] classes_)
+
+    public void SettingGameManager(GameManager gameManager_)
     {
-        refStats = refStats_;
-        refSkill = refSkill_;
-        characterColor = characterColor_;
-        classes = classes_;
-        SetUpPlayer();
+        gameManager = gameManager_;
     }
+
     private void Awake()
     {
-
+        pv = GetComponent<PhotonView>();
+        SetPlayerModelInfo();
     }
-    
-    void Start()
+
+    private void Start()
     {
         if (isProcess)
         {
             BarsSetting.singleton.player = this;
         }
-        else
+        if (!isProcess)
         {
             playerCameraParent.gameObject.SetActive(false);
         }
@@ -98,47 +104,50 @@ public class TpsController : MonoBehaviourPunCallbacks
         rotation.y = transform.eulerAngles.y;
         meleeDamageCollider = damageCollider.GetComponent<BoxCollider>();
         meleeDamageCollider.enabled = false;
-        PhotonView p = GetComponent<PhotonView>();
-        if (p.IsMine == false)
-        {
-            GameSetUpController.singleton.forceSetUp(this);
-        }
 
+       
+            //SetUpPlayer();
+        
     }
-    void SetUpPlayer()
+
+    public void SetUpPlayer(string race,string playerClass,string s,int color)
     {
-        if (PlayFabController.singleton != null)
-        {
-            SetRace(PlayFabController.singleton.playerRace);
-            SetClass(PlayFabController.singleton.playerClass);
-            SetSkill(PlayFabController.singleton.playerSkill);
-            colorIndex = PlayFabController.singleton.playerColorIndex;
-        }
-        else
-        {
-            SetRace("Human");
-            SetClass("Warrior");
-            SetSkill("Laser Beam");
-            colorIndex = 0;
-            print("9999");
-        }
-        SetColor(colorIndex);
+        pv.RPC("RPC_SetUpPlayerModel", RpcTarget.AllBuffered, race, playerClass, s,color);
     }
+
+    public void SetPlayerModelInfo()
+    {
+        refStats = TestController.singleton.refStats;
+        refSkill = TestController.singleton.refSkill;
+        characterColor = TestController.singleton.characterColor;
+        classes = TestController.singleton.classes;
+    }
+
+    [PunRPC]
+    public void RPC_SetUpPlayerModel(string race,string playerClass, string s, int color)
+    {
+        SetRace(race);
+        SetClass(playerClass);
+        SetSkill(s);
+        SetColor(color);
+    }
+
     public void SetSkill(string skillName)
     {
         for (int i = 0; i < refSkill.Length; i++)
         {
-            if(refSkill[i].skillName == skillName)
+            if (refSkill[i].skillName == skillName)
             {
                 playerSkill = refSkill[i].skillObj;
                 playerSkillName = refSkill[i].skillName;
                 maxCooldownSkill = refSkill[i].skillCooldown;
                 cooldownSkill = maxCooldownSkill;
-                if(uIManager!=null)
-                uIManager.SetPlayerSkill(refSkill[i]);
+                if (uIManager != null)
+                    uIManager.SetPlayerSkill(refSkill[i]);
             }
         }
     }
+
     public void SetRace(string r)
     {
         for (int i = 0; i < refStats.Length; i++)
@@ -156,62 +165,58 @@ public class TpsController : MonoBehaviourPunCallbacks
                 maxMana = mana;
                 regenMana = refStats[i].regenMana;
                 attackUseStamina = refStats[i].attackUseStamina;
-                if(uIManager!=null)
-                uIManager.InitSetRace(refStats[i].iconRace, refStats[i].characterRace);
-             
+                if (uIManager != null)
+                    uIManager.InitSetRace(refStats[i].iconRace, refStats[i].characterRace);
+                else
+                    print("asppasdas");
             }
-        
         }
     }
+
     public void SetClass(string playerClass_)
     {
-
         playerClass = playerClass_;
+        print(playerClass);
         knightModel.SetActive(false);
         archerModel.SetActive(false);
         mageModel.SetActive(false);
-  
+
         for (int i = 0; i < classes.Length; i++)
         {
-     
             if (playerClass_ == classes[i].className)
             {
                 playerDamage = classes[i].classDamage;
             }
-             if (playerClass_ == "Warrior")
+            if (playerClass_ == "Warrior")
             {
                 model = knightModel;
                 model.SetActive(true);
-
             }
             else if (playerClass_ == "Mage")
             {
                 model = mageModel;
                 model.SetActive(true);
-
             }
-            else if(playerClass_ == "Archer")
+            else if (playerClass_ == "Archer")
             {
                 model = archerModel;
                 model.SetActive(true);
             }
         }
 
-        SetColor(colorIndex);
+        //    SetColor(colorIndex);
         animator = model.GetComponent<Animator>();
     }
+
     public void SetColor(int colorIndex_)
-    {    
+    {
         colorIndex = colorIndex_;
         model.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_Color", characterColor[colorIndex]);
     }
-    void Update()
+
+    private void Update()
     {
-        
-        if (animator != null)
-        {
-            CheckIfPlayerIsDead();
-        }
+
 
         if (isDead)
         {
@@ -237,67 +242,65 @@ public class TpsController : MonoBehaviourPunCallbacks
 
         Movement();
 
-        if(cooldownSkill<= maxCooldownSkill)
+        if (isProcess)
         {
-            cooldownSkill += Time.deltaTime;
-          
-        }
-        else
-        {
-            cooldownSkill = maxCooldownSkill;
-        }
-        if (uIManager != null)
-        {
-            uIManager.cooldownTime = 1 - (cooldownSkill / maxCooldownSkill);
-        }
-   
-        if(health < maxHealth)
-        {
-            hpRegenCounter += Time.deltaTime;
-            if(hpRegenCounter > 1)
+            if (cooldownSkill <= maxCooldownSkill)
             {
-                health += regenHealth;
-                hpRegenCounter = 0;
+                cooldownSkill += Time.deltaTime;
+            }
+            else
+            {
+                cooldownSkill = maxCooldownSkill;
+            }
+            if (uIManager != null)
+            {
+                uIManager.cooldownTime = 1 - (cooldownSkill / maxCooldownSkill);
+            }
+
+            if (health < maxHealth)
+            {
+                hpRegenCounter += Time.deltaTime;
+                if (hpRegenCounter > 1)
+                {
+                    health += regenHealth;
+                    hpRegenCounter = 0;
+                }
+            }
+            else
+            {
+                health = maxHealth;
+            }
+
+            if (stamina < maxStamina)
+            {
+                staminaRegenCounter += Time.deltaTime;
+                if (staminaRegenCounter > 1)
+                {
+                    stamina += regenStamina;
+                    staminaRegenCounter = 0;
+                }
+            }
+            else
+            {
+                stamina = maxStamina;
+            }
+            if (mana < maxMana)
+            {
+                manaRegenCounter += Time.deltaTime;
+                if (manaRegenCounter > 1)
+                {
+                    mana += regenMana;
+                    manaRegenCounter = 0;
+                }
+            }
+            else
+            {
+                mana = maxMana;
             }
         }
-        else
-        {
-            health = maxHealth;
-        }
-
-
-        if (stamina < maxStamina)
-        {
-            staminaRegenCounter += Time.deltaTime;
-            if (staminaRegenCounter > 1)
-            {
-                stamina += regenStamina;
-                staminaRegenCounter = 0;
-            }
-        }
-        else
-        {
-             stamina = maxStamina;
-        }
-        if (mana < maxMana)
-        {
-            manaRegenCounter += Time.deltaTime;
-            if (manaRegenCounter >1 )
-            {
-                mana+= regenMana;
-                manaRegenCounter = 0;
-            }
-        }
-        else
-        {
-             mana = maxMana;
-        }
-
-
-  
     }
 
-    void Movement()
+    private void Movement()
     {
         if (canAttack == false || isDead || !isProcess)
         {
@@ -318,47 +321,27 @@ public class TpsController : MonoBehaviourPunCallbacks
             {
                 if (attackUseStamina <= stamina)
                 {
-                    animator.SetTrigger("Attack1Trigger");
+                    pv.RPC("RPC_BasicAttackTrigger", RpcTarget.AllBuffered);
                     stamina -= attackUseStamina;
-                    Vector3 v = GetCenterTransform().position + GetCenterTransform().forward;
-                    if (playerClass == "Warrior")
-                    {
-                        Invoke("OpenDamageCollider", 0.2f);
-                        Invoke("CloseDamageCollider", 0.26f);
-                        damageCollider.damage = playerDamage;
-                    }
-                    else if (playerClass == "Mage")
-                    {
-                        DamageBase magic = Instantiate(magicAttack, v, GetCenterTransform().rotation);
-                        magic.SetUpOwner(this);
-                        magic.damage = playerDamage;
-                    }
-                    else if (playerClass == "Archer")
-                    {
-                        DamageBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
-                        arrow.SetUpOwner(this);
-                        arrow.damage = playerDamage;
-                    }
+                    pv.RPC("RPC_OnCallBasicAttack", RpcTarget.AllBuffered);
+
                     canAttack = false;
                 }
-
             }
             if (Input.GetMouseButtonUp(1))
             {
-              
-                if (playerSkill.useMana <=mana)
+                if (playerSkill.useMana <= mana)
                 {
                     if (cooldownSkill == maxCooldownSkill)
                     {
-                        animator.SetTrigger("Attack1Trigger");
+                        pv.RPC("RPC_BasicAttackTrigger", RpcTarget.AllBuffered);
                         mana -= playerSkill.useMana;
                         canAttack = false;
-                        OnCallSkill();
+                        pv.RPC("RPC_OnCallSkill", RpcTarget.AllBuffered);
+
                         cooldownSkill = 0;
                     }
-                  
                 }
-
             }
 
             if (Input.GetButton("Jump") && canMove)
@@ -370,15 +353,16 @@ public class TpsController : MonoBehaviourPunCallbacks
         // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
         // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
         // as an acceleration (ms^-2)
-  
-        if (moveDirection != Vector3.zero)
+
+        if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
         {
-            animator.SetBool("Moving", true);
+            pv.RPC("RPC_MovingAnimator", RpcTarget.AllBuffered, true);
         }
-        else
+        else if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0)
         {
-            animator.SetBool("Moving", false);
+            pv.RPC("RPC_MovingAnimator", RpcTarget.AllBuffered, false);
         }
+
         moveDirection.y -= gravity * Time.deltaTime;
 
         // Move the controller
@@ -394,22 +378,90 @@ public class TpsController : MonoBehaviourPunCallbacks
             transform.eulerAngles = new Vector2(0, rotation.y);
         }
     }
+
     public void OpenDamageCollider()
     {
         meleeDamageCollider.enabled = true;
     }
+
     public void CloseDamageCollider()
     {
         meleeDamageCollider.enabled = false;
     }
+
     public Transform GetCenterTransform()
     {
         return centerTransform;
     }
-    public void OnCallSkill()
+
+    public void DoDamgeAction(float damage)
+    {
+        pv.RPC("RPC_CalculateDoDamge", RpcTarget.AllBuffered, damage);
+    }
+
+    [PunRPC]
+    public void RPC_CalculateDoDamge(float d)
+    {
+        if (!bloodParticle.isPlaying)
+        {
+            bloodParticle.Play();
+        }
+        health -= d;
+        CheckIfPlayerIsDead();
+        if (health < 0)
+        {
+            health = 0;
+        }
+    }
+
+    [PunRPC]
+    public void RPC_BasicAttackTrigger()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack1Trigger");
+        }
+    }
+
+    [PunRPC]
+    public void RPC_MovingAnimator(bool isMoving)
+    {
+        if (animator != null)
+        {
+            animator.SetBool("Moving", isMoving);
+        }
+    }
+
+    [PunRPC]
+    public void RPC_OnCallBasicAttack()
+    {
+        Vector3 v = GetCenterTransform().position + GetCenterTransform().forward;
+        if (playerClass == "Warrior")
+        {
+            Invoke("OpenDamageCollider", 0.2f);
+            Invoke("CloseDamageCollider", 0.26f);
+            damageCollider.damage = playerDamage;
+        }
+        else if (playerClass == "Mage")
+        {
+            DamageBase magic = Instantiate(magicAttack, v, GetCenterTransform().rotation);
+            magic.SetUpOwner(this);
+            magic.damage = playerDamage;
+        }
+        else if (playerClass == "Archer")
+        {
+            DamageBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
+            arrow.SetUpOwner(this);
+            arrow.damage = playerDamage;
+        }
+    }
+
+    [PunRPC]
+    public void RPC_OnCallSkill()
     {
         playerSkill.OnSkillAction(this);
     }
+
     public void PlayBloodEffect()
     {
         if (!bloodParticle.isPlaying)
@@ -417,6 +469,7 @@ public class TpsController : MonoBehaviourPunCallbacks
             bloodParticle.Play();
         }
     }
+
     public void CheckIfPlayerIsDead()
     {
         if (health <= 0)
@@ -424,6 +477,16 @@ public class TpsController : MonoBehaviourPunCallbacks
             isDead = true;
         }
     }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            
+        }
+        else if (stream.IsReading)
+        {
+          
+        }
+    }
 }
-
-

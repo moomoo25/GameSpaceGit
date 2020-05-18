@@ -37,6 +37,14 @@ MonoBehaviour:
   - Fire
   - RespawnSpaceship
   - RPC_SendTimer
+  - AddPlayerToGameManager
+  - RPC_OnCallBasicAttack
+  - RPC_OnCallSkill
+  - RPC_BasicAttackTrigger
+  - RPC_MovingAnimator
+  - RPC_AddCharacter
+  - RPC_CalculateDoDamge
+  - RPC_SetUpPlayerModel
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

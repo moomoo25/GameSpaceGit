@@ -13,39 +13,35 @@ public class GameSetUpController : MonoBehaviour
     private MyGameSettingInstaller.Skills[] refSkill;
     private Color[] characterColor;
     private MyGameSettingInstaller.AllClass[] classes;
+    private GameObject playerPref;
+
+
     [Inject]
-    public void SettingGameManager(GameManager gameManager_)
+    public void SetUpSkillAndClass(GameManager gameManager_, UIManager uimanager_,MyGameSettingInstaller.Skills[] refSkills_, MyGameSettingInstaller.AllClass[] allPlayerClasses, Color[] characterColor_, DefaultInstaller.PlayerStat[] playerStats_)
     {
         gameManager = gameManager_;
-    }
-    [Inject]
-    public void SettingGameManager(UIManager uimanager_)
-    {
         uiManager = uimanager_;
-    }
-    [Inject]
-    public void SettingPlayerStat(DefaultInstaller.PlayerStat[] playerStats_)
-    {
-        refStats = playerStats_; // can use 
-    }
-    [Inject]
-    public void SetUpSkillAndClass(MyGameSettingInstaller.Skills[] refSkills_, MyGameSettingInstaller.AllClass[] allPlayerClasses)
-    {
         refSkill = refSkills_; // can use 
         classes = allPlayerClasses;
+        characterColor = characterColor_;
+        refStats = playerStats_; // can use 
+
+
+
     }
     [Inject]
-    public void SetupColor(Color[] characterColor_)
+    public void SettingPlayer(GameObject player_)
     {
-        characterColor = characterColor_;
+        playerPref = player_; // can use 
     }
     private void Awake()
     {
         GameSetUpController.singleton = this;
+        CreatePlayer();
     }
     void Start()
     {
-            CreatePlayer();
+        
     }
     void CreatePlayer()
     {
@@ -56,18 +52,21 @@ public class GameSetUpController : MonoBehaviour
             PhotonPlayer photonPlayer = player.GetComponent<PhotonPlayer>();
             if (photonPlayer != null)
             {
-                photonPlayer.SetSpawnPoint(gameManager.spawnpoints[0]);
-                photonPlayer.SetUiManager(this.uiManager);
-                photonPlayer.SetPlayerModelInfo(refStats, refSkill, characterColor, classes);
+                photonPlayer.SetUpCharacter(this.gameManager, this.uiManager, playerPref, refStats, refSkill, characterColor, classes);
+                if (TestController.singleton != null)
+                {
+                    TestController.singleton.refSkill = refSkill;
+                    TestController.singleton.refStats = refStats;
+                    TestController.singleton.characterColor = characterColor;
+                    TestController.singleton.classes = classes;
+                }
+
             }
            
         }
      
     }
-    // Update is called once per frame
-    public void forceSetUp(TpsController player)
-    {
-        player.SetPlayerModelInfo(refStats, refSkill, characterColor, classes);
-    }
+ 
+
 
 }

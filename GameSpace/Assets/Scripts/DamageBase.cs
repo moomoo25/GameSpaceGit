@@ -20,9 +20,7 @@ public class DamageBase : MonoBehaviour
     }
     public void DoDamage(TpsController target)
     {
-        print(target.name);
-        target.PlayBloodEffect();
-        target.health-= damage;
+        target.DoDamgeAction(damage);
     }
 }
 

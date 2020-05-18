@@ -80,6 +80,7 @@ namespace Photon.Pun
 
         private bool TriggerUsageWarningDone;
         
+        [SerializeField]
         private Animator m_Animator;
 
         private PhotonStreamQueue m_StreamQueue = new PhotonStreamQueue(120);
