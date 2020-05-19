@@ -26,13 +26,14 @@ public class PhotonPlayer : MonoBehaviour
     {
         if (pv.IsMine)
         {
+            
             SetSpawnPoint();
             myAvatar = PhotonNetwork.Instantiate(Path.Combine("PlayerPrefs", "Player"), spawnPoint.position, spawnPoint.rotation, 0);
             TpsController tpsController = myAvatar.GetComponent<TpsController>();
             tpsController.SettingUIManager(uIManager);
             tpsController.isProcess = true;
             tpsController.SetUpPlayer("Human", TestController.singleton.cac, TestController.singleton.skill, TestController.singleton.colorIn);
-      
+   ;
             myAvatar.transform.position = spawnPoint.transform.position;
             myAvatar.transform.rotation = spawnPoint.transform.rotation;
         }

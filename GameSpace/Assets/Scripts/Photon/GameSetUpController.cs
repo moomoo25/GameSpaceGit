@@ -52,6 +52,7 @@ public class GameSetUpController : MonoBehaviour
             PhotonPlayer photonPlayer = player.GetComponent<PhotonPlayer>();
             if (photonPlayer != null)
             {
+                TestController.singleton.gameState = GameState.LastManStanding;
                 photonPlayer.SetUpCharacter(this.gameManager, this.uiManager, playerPref, refStats, refSkill, characterColor, classes);
                 if (TestController.singleton != null)
                 {

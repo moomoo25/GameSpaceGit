@@ -45,6 +45,8 @@ MonoBehaviour:
   - RPC_AddCharacter
   - RPC_CalculateDoDamge
   - RPC_SetUpPlayerModel
+  - RPC_SetUpG
+  - RPC_CheckIfPlayerIsDead
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

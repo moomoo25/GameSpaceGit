@@ -1,8 +1,8 @@
 ﻿using Photon.Pun;
 using UnityEngine;
-
+using Zenject;
 [RequireComponent(typeof(CharacterController))]
-public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
+public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 {
     public bool isProcess;
     public bool isDead;
@@ -60,32 +60,31 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
     private float attackCounter;
     private BoxCollider meleeDamageCollider;
     private bool isMoving;
-
+    private bool isMoving2;
+    private bool isGameEnd;
     [HideInInspector]
     public bool canMove = true;
 
-    private bool sad;
+    
     public ParticleSystem bloodParticle;
-
+    private bool isAff;
     private float hpRegenCounter = 0;
     private float staminaRegenCounter = 0;
     private float manaRegenCounter = 0;
+    public GameObject endGameCanvas;
     private MyGameSettingInstaller.Skills[] refSkill;
     private MyGameSettingInstaller.AllClass[] classes;
     private PhotonView pv;
-    TestController tt;
+
+   
     public void SettingUIManager(UIManager uIManager_)
     {
         uIManager = uIManager_;
     }
 
-    public void SettingGameManager(GameManager gameManager_)
-    {
-        gameManager = gameManager_;
-    }
-
     private void Awake()
     {
+        health = 50;
         pv = GetComponent<PhotonView>();
         SetPlayerModelInfo();
     }
@@ -104,10 +103,6 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
         rotation.y = transform.eulerAngles.y;
         meleeDamageCollider = damageCollider.GetComponent<BoxCollider>();
         meleeDamageCollider.enabled = false;
-
-       
-            //SetUpPlayer();
-        
     }
 
     public void SetUpPlayer(string race,string playerClass,string s,int color)
@@ -121,6 +116,7 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
         refSkill = TestController.singleton.refSkill;
         characterColor = TestController.singleton.characterColor;
         classes = TestController.singleton.classes;
+        TestController.singleton.tpsControllers.Add(this);  
     }
 
     [PunRPC]
@@ -129,7 +125,7 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
         SetRace(race);
         SetClass(playerClass);
         SetSkill(s);
-        SetColor(color);
+        SetColor(color);  
     }
 
     public void SetSkill(string skillName)
@@ -167,8 +163,7 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
                 attackUseStamina = refStats[i].attackUseStamina;
                 if (uIManager != null)
                     uIManager.InitSetRace(refStats[i].iconRace, refStats[i].characterRace);
-                else
-                    print("asppasdas");
+                
             }
         }
     }
@@ -218,8 +213,23 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
     {
 
 
+       if( TestController.singleton.isGameEnd)
+        {
+            if (pv.IsMine)
+            {
+                if (isGameEnd == false)
+                {
+                    CreateEndGameCanvas();
+                    isGameEnd = true;
+                }
+            }
+          
+        }
+
+
         if (isDead)
         {
+            health = 0;
             GetComponent<CharacterController>().enabled = false;
             knightModel.SetActive(false);
             archerModel.SetActive(false);
@@ -228,6 +238,8 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
         }
         if (!isProcess)
         {
+            if(animator!=null)
+            animator.SetBool("Moving", isMoving2);
             return;
         }
         if (canAttack == false)
@@ -240,8 +252,9 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
 
+      
         Movement();
-
+    
         if (isProcess)
         {
             if (cooldownSkill <= maxCooldownSkill)
@@ -353,16 +366,22 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
         // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
         // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
         // as an acceleration (ms^-2)
-
-        if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
+        if (pv.IsMine)
         {
-            pv.RPC("RPC_MovingAnimator", RpcTarget.AllBuffered, true);
-        }
-        else if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0)
-        {
-            pv.RPC("RPC_MovingAnimator", RpcTarget.AllBuffered, false);
-        }
+            if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
+            {
+                isMoving = true;
+            }
+            else if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0)
+            {
+                isMoving = false;
 
+            }
+            animator.SetBool("Moving", isMoving);
+        }
+    
+      
+    
         moveDirection.y -= gravity * Time.deltaTime;
 
         // Move the controller
@@ -398,6 +417,7 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
     {
         pv.RPC("RPC_CalculateDoDamge", RpcTarget.AllBuffered, damage);
     }
+   
 
     [PunRPC]
     public void RPC_CalculateDoDamge(float d)
@@ -407,9 +427,12 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
             bloodParticle.Play();
         }
         health -= d;
-        CheckIfPlayerIsDead();
+
+        pv.RPC("RPC_CheckIfPlayerIsDead", RpcTarget.AllBuffered);
         if (health < 0)
         {
+           
+     
             health = 0;
         }
     }
@@ -423,15 +446,7 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    [PunRPC]
-    public void RPC_MovingAnimator(bool isMoving)
-    {
-        if (animator != null)
-        {
-            animator.SetBool("Moving", isMoving);
-        }
-    }
-
+  
     [PunRPC]
     public void RPC_OnCallBasicAttack()
     {
@@ -469,24 +484,49 @@ public class TpsController : MonoBehaviourPunCallbacks, IPunObservable
             bloodParticle.Play();
         }
     }
-
-    public void CheckIfPlayerIsDead()
+    [PunRPC]
+    public void RPC_CheckIfPlayerIsDead()
     {
         if (health <= 0)
         {
             isDead = true;
+            if (TestController.singleton.tpsControllers.Contains(this))
+            {
+                TestController.singleton.tpsControllers.Remove(this);
+            }
+
+        }
+        print(TestController.singleton.tpsControllers.Count);
+        if (TestController.singleton.CheckPlayerAlive(PhotonNetwork.PlayerList.Length))
+        {       
+                TestController.singleton.isGameEnd = true;
         }
     }
+    void CreateEndGameCanvas()
+    {
 
+        GameObject o = Instantiate(endGameCanvas);
+
+      
+        if (this.isDead == true)
+        {
+
+            o.transform.GetChild(1).gameObject.SetActive(true);
+        }
+        else
+        {
+            o.transform.GetChild(0).gameObject.SetActive(true);
+        }
+    }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            
+            stream.SendNext(isMoving);
         }
-        else if (stream.IsReading)
+        else
         {
-          
+            isMoving2 = (bool)stream.ReceiveNext();
         }
     }
 }

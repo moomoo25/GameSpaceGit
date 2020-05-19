@@ -6,12 +6,16 @@ using UnityEngine.UI;
 public class TestController : MonoBehaviour
 {
     public static TestController singleton;
+    public List<TpsController> tpsControllers = new List<TpsController>();
     public InputField className;
     public InputField skillName;
     public InputField colorName;
     public string cac;
     public string skill;
     public int colorIn;
+    public GameState gameState;
+    public int countPlayer;
+    public bool isGameEnd;
     public DefaultInstaller.PlayerStat[] refStats;
     public MyGameSettingInstaller.Skills[] refSkill;
     public Color[] characterColor;
@@ -38,7 +42,28 @@ public class TestController : MonoBehaviour
         colorName.text = "0";
         
     }
+    public bool CheckPlayerAlive(int playerCount)
+    {
+        int alivePlayer = playerCount;
+        if (alivePlayer < 2)
+        {
+            return false;
+        }
 
+        if (gameState == GameState.LastManStanding)
+        {
+            if (tpsControllers.Count == 1)
+            {
+                return true;
+            }
+        }
+        else
+        {
+
+        }
+
+        return isGameEnd;
+    }
     public void SetUp()
     {
         cac = className.text;

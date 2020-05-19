@@ -1738,6 +1738,10 @@ MonoBehaviour:
   cac: 
   skill: 
   colorIn: 0
+  refStats: []
+  refSkill: []
+  characterColor: []
+  classes: []
 --- !u!4 &1689336650
 Transform:
   m_ObjectHideFlags: 0

@@ -7,13 +7,18 @@ public interface IGameManager
 {
     void GameManagerSetting();
     void SetRaceUI(Image icon, Text text, Sprite s, string raceName);
+    
 }
 public class GameManager : IGameManager
 {
     public List<TpsController> tpsControllers = new List<TpsController>();
-
+    GameState gameState;
     public Transform[] spawnpoints;
-  //  public ;
+    //  public ;
+    public void GameStateSetting(GameState state)
+    {
+        gameState = state;
+    }
     public void GameManagerSetting()
     {
         Debug.Log("AStar");
@@ -24,4 +29,10 @@ public class GameManager : IGameManager
         icon.sprite = s;
         RaceText.text = raceName;
     }
+  
+ 
+}
+public enum GameState
+{
+    LastManStanding, Team
 }

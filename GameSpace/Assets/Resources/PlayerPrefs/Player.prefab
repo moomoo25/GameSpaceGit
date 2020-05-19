@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88995007717a4c14fa8293680ce8e81c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 35
+  damage: 500
 --- !u!1 &1861612629190211436
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,8 +295,8 @@ MonoBehaviour:
   playerClass: Mage
   playerRace: Human
   colorIndex: 0
-  health: 0
-  maxHealth: 0
+  health: 50
+  maxHealth: 50
   stamina: 0
   maxStamina: 0
   mana: 0
@@ -324,6 +324,8 @@ MonoBehaviour:
   characterColor: []
   canMove: 1
   bloodParticle: {fileID: 6037677973478686557}
+  endGameCanvas: {fileID: 8849371086195530261, guid: 571f6655e48f67c40a01ed5360db3a34,
+    type: 3}
 --- !u!54 &1861612629720082079
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -355,7 +357,7 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 2
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: 5109795275861829989}
