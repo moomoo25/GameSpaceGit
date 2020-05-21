@@ -1,11 +1,16 @@
 ﻿using Photon.Pun;
 using UnityEngine;
 using Zenject;
+using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
 [RequireComponent(typeof(CharacterController))]
 public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 {
     public bool isProcess;
     public bool isDead;
+    public int playerTeam;
     public Transform centerTransform;
     public string playerClass;
     public string playerRace;
@@ -38,19 +43,20 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 
     [Header("ControllerSetting")]
     public float speed = 7.5f;
-
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
     public Transform playerCameraParent;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 60.0f;
+
+    [Header("PlayerModel")]
     public GameObject knightModel;
     public GameObject mageModel;
     public GameObject archerModel;
     private GameObject model = null;
     private Animator animator;
 
-    public Color[] characterColor;
+    private Color[] characterColor;
     private DefaultInstaller.PlayerStat[] refStats;
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
@@ -60,7 +66,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     private float attackCounter;
     private BoxCollider meleeDamageCollider;
     private bool isMoving;
-    private bool isMoving2;
+    private bool isMovingFormOtherPV;
     private bool isGameEnd;
     [HideInInspector]
     public bool canMove = true;
@@ -72,6 +78,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     private float staminaRegenCounter = 0;
     private float manaRegenCounter = 0;
     public GameObject endGameCanvas;
+    public  TextMeshProUGUI teamText;
     private MyGameSettingInstaller.Skills[] refSkill;
     private MyGameSettingInstaller.AllClass[] classes;
     private PhotonView pv;
@@ -105,9 +112,9 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         meleeDamageCollider.enabled = false;
     }
 
-    public void SetUpPlayer(string race,string playerClass,string s,int color)
+    public void SetUpPlayer(string race,string playerClass,string s,int color,int teamIndex)
     {
-        pv.RPC("RPC_SetUpPlayerModel", RpcTarget.AllBuffered, race, playerClass, s,color);
+        pv.RPC("RPC_SetUpPlayerModel", RpcTarget.AllBuffered, race, playerClass, s,color, teamIndex);
     }
 
     public void SetPlayerModelInfo()
@@ -120,12 +127,26 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     }
 
     [PunRPC]
-    public void RPC_SetUpPlayerModel(string race,string playerClass, string s, int color)
+    public void RPC_SetUpPlayerModel(string race,string playerClass, string s, int color,int teamIndex)
     {
         SetRace(race);
         SetClass(playerClass);
         SetSkill(s);
-        SetColor(color);  
+        SetColor(color);
+        if (TestController.singleton.gameState == GameState.Team)
+        {
+            playerTeam = teamIndex;
+            if (pv.IsMine)
+            {
+                teamText.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, 0);
+            }
+            teamText.text = "Team " + playerTeam;
+        }
+        else
+        {
+            teamText.gameObject.SetActive(false);
+        }
+     
     }
 
     public void SetSkill(string skillName)
@@ -212,13 +233,22 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     private void Update()
     {
 
-
+        if (Application.isEditor)
+        {
+            if (Input.GetKeyUp(KeyCode.X))
+            {
+                SwitchLevel();
+            }
+        }
+      
+       
        if( TestController.singleton.isGameEnd)
         {
             if (pv.IsMine)
             {
                 if (isGameEnd == false)
                 {
+                    
                     CreateEndGameCanvas();
                     isGameEnd = true;
                 }
@@ -239,7 +269,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         if (!isProcess)
         {
             if(animator!=null)
-            animator.SetBool("Moving", isMoving2);
+            animator.SetBool("Moving", isMovingFormOtherPV);
             return;
         }
         if (canAttack == false)
@@ -507,17 +537,55 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 
         GameObject o = Instantiate(endGameCanvas);
 
-      
-        if (this.isDead == true)
+        if (TestController.singleton.gameState == GameState.LastManStanding)
         {
+            if (this.isDead == true)
+            {
 
-            o.transform.GetChild(1).gameObject.SetActive(true);
+                o.transform.GetChild(1).gameObject.SetActive(true);//lose
+            }
+            else
+            {
+                o.transform.GetChild(0).gameObject.SetActive(true);//win
+            }
         }
         else
         {
-            o.transform.GetChild(0).gameObject.SetActive(true);
+            if(playerTeam== TestController.singleton.teamWin)
+            {
+                o.transform.GetChild(0).gameObject.SetActive(true);//win
+            }
+            else
+            {
+                o.transform.GetChild(1).gameObject.SetActive(true);//lose
+            }
         }
+      
+        Invoke("SwitchLevel",4);
     }
+    
+    public void SwitchLevel()
+    {
+        isGameEnd = true;
+        
+        StartCoroutine(DoSwitchLevel());
+    }
+    IEnumerator DoSwitchLevel()
+    {
+        
+        PhotonNetwork.LeaveRoom();
+        while (PhotonNetwork.InRoom)
+        {
+            yield return null;
+        }
+  
+        SceneManager.LoadScene(0);
+    }
+    void OnPhotonPlayerDisconnected()
+    {
+      
+    }
+    
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -526,7 +594,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         }
         else
         {
-            isMoving2 = (bool)stream.ReceiveNext();
+            isMovingFormOtherPV = (bool)stream.ReceiveNext();
         }
     }
 }

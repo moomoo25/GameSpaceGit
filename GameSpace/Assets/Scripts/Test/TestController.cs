@@ -13,9 +13,11 @@ public class TestController : MonoBehaviour
     public string cac;
     public string skill;
     public int colorIn;
+    public int teamWin;
     public GameState gameState;
     public int countPlayer;
     public bool isGameEnd;
+
     public DefaultInstaller.PlayerStat[] refStats;
     public MyGameSettingInstaller.Skills[] refSkill;
     public Color[] characterColor;
@@ -59,11 +61,34 @@ public class TestController : MonoBehaviour
         }
         else
         {
-
+            int teamACount = 0;
+            int teamBCount = 0;
+            for (int i = 0; i < tpsControllers.Count; i++)
+            {
+                if (tpsControllers[i].playerTeam==1)
+                {
+                    teamACount++;
+                }
+                else
+                {
+                    teamBCount++;
+                }
+            }
+            if(teamACount==tpsControllers.Count)
+            {
+                teamWin = 1;
+                return true;
+            }
+            if (teamBCount == tpsControllers.Count)
+            {
+                teamWin = 2;
+                return true;
+            }
         }
 
         return isGameEnd;
     }
+ 
     public void SetUp()
     {
         cac = className.text;

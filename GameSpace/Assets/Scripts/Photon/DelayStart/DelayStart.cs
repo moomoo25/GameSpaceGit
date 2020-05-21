@@ -15,7 +15,7 @@ public class DelayStart : MonoBehaviourPunCallbacks
     public int minPlayerToStart;
     public Text playerCountDisplay;
     public Text timerToStartDisplay;
-
+    public Text modeDetail;
     private bool readyToCountDown;
     private bool readyToStart;
     private bool startingGame;
@@ -34,6 +34,15 @@ public class DelayStart : MonoBehaviourPunCallbacks
         notFullGameTimer = maxWaitTime;
         timerToStartGame = maxWaitTime;
         PlayerCountUpdate();
+
+        if (TestController.singleton.gameState == GameState.LastManStanding)
+        {
+            modeDetail.text = "GameMode : LastManStanding";
+        }
+        else
+        {
+            modeDetail.text = "GameMode : Team";
+        }
     }
     void PlayerCountUpdate()
     {
@@ -79,6 +88,8 @@ public class DelayStart : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
+      
+    
         WaitingForMorePlayer();
     }
     void WaitingForMorePlayer()

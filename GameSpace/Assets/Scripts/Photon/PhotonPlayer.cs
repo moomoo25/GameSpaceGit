@@ -26,24 +26,30 @@ public class PhotonPlayer : MonoBehaviour
     {
         if (pv.IsMine)
         {
-            
-            SetSpawnPoint();
+            int IndexById = pv.ViewID / 1000;
+            spawnPoint = gameManager.spawnpoints[IndexById-1];
             myAvatar = PhotonNetwork.Instantiate(Path.Combine("PlayerPrefs", "Player"), spawnPoint.position, spawnPoint.rotation, 0);
+         
             TpsController tpsController = myAvatar.GetComponent<TpsController>();
             tpsController.SettingUIManager(uIManager);
             tpsController.isProcess = true;
-            tpsController.SetUpPlayer("Human", TestController.singleton.cac, TestController.singleton.skill, TestController.singleton.colorIn);
-   ;
-            myAvatar.transform.position = spawnPoint.transform.position;
-            myAvatar.transform.rotation = spawnPoint.transform.rotation;
+
+            IndexById = IndexById % 2;
+            if (IndexById == 0)
+            {
+                IndexById = 2;
+            }
+            tpsController.SetUpPlayer("Human", TestController.singleton.cac, TestController.singleton.skill, TestController.singleton.colorIn, IndexById);
+       
+          //  myAvatar.transform.position = spawnPoint.transform.position;
+          //  myAvatar.transform.rotation = spawnPoint.transform.rotation;
         }
     }
-
+   
     public void SetUpCharacter(GameManager gameManager_, UIManager uIManager_, GameObject player_, DefaultInstaller.PlayerStat[] refStats_, MyGameSettingInstaller.Skills[] refSkill_, Color[] characterColor_, MyGameSettingInstaller.AllClass[] classes_)
     {
         uIManager = uIManager_;
         gameManager = gameManager_;
-
         playerPref = player_;
         refStats = refStats_;
         refSkill = refSkill_;
@@ -51,17 +57,4 @@ public class PhotonPlayer : MonoBehaviour
         classes = classes_;
     }
 
-    public void SetSpawnPoint()
-    {
-        spawnPoint = gameManager.spawnpoints[PhotonNetwork.PlayerList.Length - 1];
-    }
-
-    public void SetPlayerModelInfo()
-    {
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-    }
 }
