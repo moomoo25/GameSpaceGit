@@ -88,7 +88,10 @@ public class TestController : MonoBehaviour
 
         return isGameEnd;
     }
- 
+ public void CheckMissingGameObjectInPlayerList()
+    {
+        tpsControllers.RemoveAll(item => item == null);
+    }
     public void SetUp()
     {
         cac = className.text;

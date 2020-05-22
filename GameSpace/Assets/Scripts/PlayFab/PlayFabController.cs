@@ -11,21 +11,17 @@ using UnityEngine.SceneManagement;
 public class PlayFabController : MonoBehaviour
 {
     public static PlayFabController singleton;
+    private LoginSceneUI loginSceneUI;
     private string email;
     private string password;
     private string username;
     private bool isCreateAccount;
     private string myId = null;
     public string leaderBoardText;
-    public InputField userInput;
-    public InputField emailInput;
-    public InputField passwordInput;
-    public InputField confirmPasswordInput;
-    public Text butoonText;
-    public Text createAccountButtonText;
-    public Text infoText;
-    public GameObject loginPanel;
+    //
 
+    public GameObject loginPanel;
+    //
     private bool isSetPlayerData;
     private bool isGetPlayerData;
     private bool isSuccessOperaion;
@@ -58,8 +54,9 @@ public class PlayFabController : MonoBehaviour
     }
     void Start()
     {
-        userInput.gameObject.SetActive(false);
-        confirmPasswordInput.gameObject.SetActive(false);
+        loginSceneUI = GetComponent<LoginSceneUI>();
+        loginSceneUI.userInput.gameObject.SetActive(false);
+        loginSceneUI.confirmPasswordInput.gameObject.SetActive(false);
     }
     private void Update()
     {
@@ -83,7 +80,7 @@ public class PlayFabController : MonoBehaviour
     #region login
     private void OnLogInSuccess(LoginResult result)
     {
-        infoText.text = "Success Login";
+        loginSceneUI.infoText.text = "Success Login";
         Debug.Log("Success Login");
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
@@ -98,7 +95,7 @@ public class PlayFabController : MonoBehaviour
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
         Debug.Log("Success Register");
-        infoText.text = "Success Register";
+        loginSceneUI.infoText.text = "Success Register";
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
@@ -131,12 +128,12 @@ public class PlayFabController : MonoBehaviour
     }
     private void OnLogInFaill(PlayFabError error)
     {
-        infoText.text = error.ErrorMessage;
+        loginSceneUI.infoText.text = error.ErrorMessage;
     }
     private void OnRegisterFailure(PlayFabError error)
     {
         Debug.Log(error.GenerateErrorReport());
-        infoText.text = error.GenerateErrorReport();
+        loginSceneUI.infoText.text = error.GenerateErrorReport();
     }
     public void OnClickLogin()
     {
@@ -158,27 +155,27 @@ public class PlayFabController : MonoBehaviour
     {
         if (!isCreateAccount)
         {
-            userInput.gameObject.SetActive(true);
-            confirmPasswordInput.gameObject.SetActive(true);
-            butoonText.text = "Register";
-            createAccountButtonText.text = "Back";
+            loginSceneUI.userInput.gameObject.SetActive(true);
+            loginSceneUI.confirmPasswordInput.gameObject.SetActive(true);
+            loginSceneUI.butoonText.text = "Register";
+            loginSceneUI.createAccountButtonText.text = "Back";
             isCreateAccount = true;
         }
         else
         {
-            userInput.gameObject.SetActive(false);
-            confirmPasswordInput.gameObject.SetActive(false);
-            butoonText.text = "Login";
-            createAccountButtonText.text = "CreateAccount";
+            loginSceneUI.userInput.gameObject.SetActive(false);
+            loginSceneUI.confirmPasswordInput.gameObject.SetActive(false);
+            loginSceneUI.butoonText.text = "Login";
+            loginSceneUI.createAccountButtonText.text = "CreateAccount";
             isCreateAccount = false;
         }
 
     }
     private void OnClickRegister()
     {
-        if (confirmPasswordInput.text != passwordInput.text)
+        if (loginSceneUI.confirmPasswordInput.text != loginSceneUI.passwordInput.text)
         {
-            infoText.text = "Password not match.";
+            loginSceneUI.infoText.text = "Password not match.";
             return;
         }
 
@@ -190,17 +187,17 @@ public class PlayFabController : MonoBehaviour
     }
     public void SetEmaill()
     {
-        email = emailInput.text;
+        email = loginSceneUI.emailInput.text;
         print(email);
     }
     public void SetPassword()
     {
-        password = passwordInput.text;
+        password = loginSceneUI.passwordInput.text;
         print(password);
     }
     public void SetUsername()
     {
-        username = userInput.text;
+        username = loginSceneUI.userInput.text;
     }
     #endregion
     #region request

@@ -40,14 +40,14 @@ public class QuickStartLobbyController : MonoBehaviourPunCallbacks
         StartLastManStandinButton.SetActive(false);
         quickCancleButton.SetActive(true);
 
-        //Hashtable expectedCustomRoomProperties = new Hashtable()
-        //{
-        //{ "Color",color },
-        //{"Level", level }
-        //};
-        //PhotonNetwork.JoinRandomRoom(expectedCustomRoomProperties, (byte)roomSize);
+        Hashtable expectedCustomRoomProperties = new Hashtable()
+        {
+        { "Mode",mode }
+       
+        };
+        PhotonNetwork.JoinRandomRoom(expectedCustomRoomProperties, (byte)roomSize);
 
-        PhotonNetwork.JoinRandomRoom();
+        //PhotonNetwork.JoinRandomRoom();
 
         Debug.Log("QuickStart");
     }
@@ -57,7 +57,7 @@ public class QuickStartLobbyController : MonoBehaviourPunCallbacks
         //string roomname = "ABC";
         //string color = "black";
         //string level = "1";
-        //CreateRoom(roomname, MaxPlayerFromTable, color, level);
+       // CreateRoom(roomname, MaxPlayerFromTable, color, level);
         CreateRoom();
     }
     void CreateRoom()
@@ -65,10 +65,10 @@ public class QuickStartLobbyController : MonoBehaviourPunCallbacks
         Debug.Log("Creating room now");
         int randomRoomNumber = Random.Range(0, 10000);
         RoomOptions roomOps = new RoomOptions() { IsVisible = true, IsOpen = true, MaxPlayers = (byte)roomSize };
-        //Hashtable roomProps = new Hashtable() { { "Mode", mode } };
-        //string[] roomPropsInLobby = {"Mode"};
-        //roomOps.CustomRoomProperties = roomProps;
-        //roomOps.CustomRoomPropertiesForLobby = roomPropsInLobby;
+        Hashtable roomProps = new Hashtable() { { "Mode", mode } };
+        string[] roomPropsInLobby = { "Mode" };
+        roomOps.CustomRoomProperties = roomProps;
+        roomOps.CustomRoomPropertiesForLobby = roomPropsInLobby;
         PhotonNetwork.CreateRoom("Room" + randomRoomNumber, roomOps);
         
         Debug.Log(randomRoomNumber);

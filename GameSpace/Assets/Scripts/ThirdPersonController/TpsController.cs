@@ -233,13 +233,12 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     private void Update()
     {
 
-        if (Application.isEditor)
-        {
-            if (Input.GetKeyUp(KeyCode.X))
+       
+            if (Input.GetKeyUp(KeyCode.Escape))
             {
-                SwitchLevel();
+            StartCoroutine(OnPlayerLeave());
             }
-        }
+        
       
        
        if( TestController.singleton.isGameEnd)
@@ -581,12 +580,27 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
   
         SceneManager.LoadScene(0);
     }
+    IEnumerator OnPlayerLeave()
+    {
+
+        pv.RPC("RPC_OnPlayerLeave", RpcTarget.AllBuffered);
+        yield return new WaitForEndOfFrame();
+
+    }
     void OnPhotonPlayerDisconnected()
     {
-      
+     
     }
-    
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    void OnApplicationQuit()
+    {
+        pv.RPC("RPC_OnPlayerLeave", RpcTarget.AllBuffered);
+    }
+    [PunRPC]
+    public void RPC_OnPlayerLeave()
+    {
+        TestController.singleton.CheckMissingGameObjectInPlayerList();
+    }
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
