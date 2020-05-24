@@ -6,17 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/LoginScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 0
-    path: Assets/Scenes/CharacterCreate.unity
-    guid: ccdf9ef5567f45b46ae85bb67c4ff2f8
-  - enabled: 0
     path: Assets/Scenes/RPG_Scene.unity
     guid: b9d9a79b43a721c41b876e9053e58e4b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TestPhoton/TestScene.unity
     guid: 265ba6e2227a6054aa621eab72555ebe
+  - enabled: 1
+    path: Assets/Scenes/LoginScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/CharacterCreate.unity
+    guid: ccdf9ef5567f45b46ae85bb67c4ff2f8
   - enabled: 1
     path: Assets/Scenes/TestPhoton/DelayStart.unity
     guid: 17f13ae5d7c7f0744835d31237d146b7

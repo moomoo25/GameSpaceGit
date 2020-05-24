@@ -35,7 +35,7 @@ public class DelayStart : MonoBehaviourPunCallbacks
         timerToStartGame = maxWaitTime;
         PlayerCountUpdate();
 
-        if (TestController.singleton.gameState == GameState.LastManStanding)
+        if (PlayFabController.singleton.gameState == GameState.LastManStanding)
         {
             modeDetail.text = "GameMode : LastManStanding";
         }

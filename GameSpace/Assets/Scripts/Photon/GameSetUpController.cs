@@ -26,8 +26,6 @@ public class GameSetUpController : MonoBehaviour
         characterColor = characterColor_;
         refStats = playerStats_; // can use 
 
-
-
     }
     [Inject]
     public void SettingPlayer(GameObject player_)
@@ -53,15 +51,7 @@ public class GameSetUpController : MonoBehaviour
             if (photonPlayer != null)
             {
                // TestController.singleton.gameState = GameState.Team;
-                photonPlayer.SetUpCharacter(this.gameManager, this.uiManager, playerPref, refStats, refSkill, characterColor, classes);
-                if (TestController.singleton != null)
-                {
-                    TestController.singleton.refSkill = refSkill;
-                    TestController.singleton.refStats = refStats;
-                    TestController.singleton.characterColor = characterColor;
-                    TestController.singleton.classes = classes;
-                }
-
+                photonPlayer.SetUpCharacter(this.gameManager, this.uiManager, playerPref, PlayFabController.singleton.refStats, PlayFabController.singleton.refSkill, PlayFabController.singleton.characterColor, PlayFabController.singleton.classes);
             }
            
         }

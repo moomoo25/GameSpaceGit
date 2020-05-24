@@ -39,7 +39,7 @@ public class PhotonPlayer : MonoBehaviour
             {
                 IndexById = 2;
             }
-            tpsController.SetUpPlayer("Human", TestController.singleton.cac, TestController.singleton.skill, TestController.singleton.colorIn, IndexById);
+            tpsController.SetUpPlayer(PlayFabController.singleton.playerRace, PlayFabController.singleton.playerClass, PlayFabController.singleton.playerSkill, PlayFabController.singleton.playerColorIndex, IndexById);
        
           //  myAvatar.transform.position = spawnPoint.transform.position;
           //  myAvatar.transform.rotation = spawnPoint.transform.rotation;

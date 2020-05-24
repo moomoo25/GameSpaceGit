@@ -11,7 +11,6 @@ public class RaceDetail : MonoBehaviour
     void Start()
     {
         raceDetailText = GetComponent<Text>();
-      
     }
 
     // Update is called once per frame

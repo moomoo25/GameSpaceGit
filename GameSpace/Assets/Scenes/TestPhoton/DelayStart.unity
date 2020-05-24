@@ -263,9 +263,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa4dead25ec84ec44b7af65940f93d5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  multiplayerSceneIndex: 2
+  multiplayerSceneIndex: 3
   menuSceneIndex: 0
-  minPlayerToStart: 3
+  minPlayerToStart: 2
   playerCountDisplay: {fileID: 240085634}
   timerToStartDisplay: {fileID: 355307558}
   modeDetail: {fileID: 1563813344}

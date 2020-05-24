@@ -111,19 +111,23 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         meleeDamageCollider = damageCollider.GetComponent<BoxCollider>();
         meleeDamageCollider.enabled = false;
     }
-
+    public void SetUpPlayerOffline(string race, string playerClass, string s, int color, int teamIndex)
+    {
+        RPC_SetUpPlayerModel(race, playerClass, s, color, teamIndex);
+        teamText.gameObject.SetActive(false);
+    }
     public void SetUpPlayer(string race,string playerClass,string s,int color,int teamIndex)
     {
+        PlayFabController.singleton.tpsControllers.Add(this);
         pv.RPC("RPC_SetUpPlayerModel", RpcTarget.AllBuffered, race, playerClass, s,color, teamIndex);
     }
 
     public void SetPlayerModelInfo()
     {
-        refStats = TestController.singleton.refStats;
-        refSkill = TestController.singleton.refSkill;
-        characterColor = TestController.singleton.characterColor;
-        classes = TestController.singleton.classes;
-        TestController.singleton.tpsControllers.Add(this);  
+        refStats = PlayFabController.singleton.refStats;
+        refSkill = PlayFabController.singleton.refSkill;
+        characterColor = PlayFabController.singleton.characterColor;
+        classes = PlayFabController.singleton.classes;
     }
 
     [PunRPC]
@@ -133,7 +137,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         SetClass(playerClass);
         SetSkill(s);
         SetColor(color);
-        if (TestController.singleton.gameState == GameState.Team)
+        if (PlayFabController.singleton.gameState == GameState.Team)
         {
             playerTeam = teamIndex;
             if (pv.IsMine)
@@ -220,7 +224,8 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
             }
         }
 
-        //    SetColor(colorIndex);
+        colorIndex = PlayFabController.singleton.playerColorIndex;
+        model.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_Color", characterColor[colorIndex]);
         animator = model.GetComponent<Animator>();
     }
 
@@ -236,12 +241,12 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
        
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-            StartCoroutine(OnPlayerLeave());
+            StartCoroutine(DoSwitchLevel());
             }
         
       
        
-       if( TestController.singleton.isGameEnd)
+       if(PlayFabController.singleton.isGameEnd)
         {
             if (pv.IsMine)
             {
@@ -519,16 +524,16 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         if (health <= 0)
         {
             isDead = true;
-            if (TestController.singleton.tpsControllers.Contains(this))
+            if (PlayFabController.singleton.tpsControllers.Contains(this))
             {
-                TestController.singleton.tpsControllers.Remove(this);
+                PlayFabController.singleton.tpsControllers.Remove(this);
             }
 
         }
-        print(TestController.singleton.tpsControllers.Count);
-        if (TestController.singleton.CheckPlayerAlive(PhotonNetwork.PlayerList.Length))
-        {       
-                TestController.singleton.isGameEnd = true;
+        print(PlayFabController.singleton.tpsControllers.Count);
+        if (PlayFabController.singleton.CheckPlayerAlive(PhotonNetwork.PlayerList.Length))
+        {
+            PlayFabController.singleton.isGameEnd = true;
         }
     }
     void CreateEndGameCanvas()
@@ -536,7 +541,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 
         GameObject o = Instantiate(endGameCanvas);
 
-        if (TestController.singleton.gameState == GameState.LastManStanding)
+        if (PlayFabController.singleton.gameState == GameState.LastManStanding)
         {
             if (this.isDead == true)
             {
@@ -550,7 +555,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         }
         else
         {
-            if(playerTeam== TestController.singleton.teamWin)
+            if(playerTeam== PlayFabController.singleton.teamWin)
             {
                 o.transform.GetChild(0).gameObject.SetActive(true);//win
             }
@@ -578,7 +583,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
             yield return null;
         }
   
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
     IEnumerator OnPlayerLeave()
     {
@@ -587,9 +592,9 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         yield return new WaitForEndOfFrame();
 
     }
-    void OnPhotonPlayerDisconnected()
+    void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
-     
+        PlayFabController.singleton.CheckMissingGameObjectInPlayerList();
     }
     void OnApplicationQuit()
     {
@@ -598,7 +603,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     [PunRPC]
     public void RPC_OnPlayerLeave()
     {
-        TestController.singleton.CheckMissingGameObjectInPlayerList();
+        PlayFabController.singleton.CheckMissingGameObjectInPlayerList();
     }
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {

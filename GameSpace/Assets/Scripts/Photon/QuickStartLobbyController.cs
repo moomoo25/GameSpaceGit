@@ -28,12 +28,12 @@ public class QuickStartLobbyController : MonoBehaviourPunCallbacks
     {
         if (modeIndex==0)
         {
-            TestController.singleton.gameState = GameState.LastManStanding;
+            PlayFabController.singleton.gameState = GameState.LastManStanding;
             mode = "LastManStanding";
         }
         else
         {
-            TestController.singleton.gameState = GameState.Team;
+            PlayFabController.singleton.gameState = GameState.Team;
             mode = "Team";
         }
         StartTeamButton.SetActive(false);

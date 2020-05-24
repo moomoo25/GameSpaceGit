@@ -69,11 +69,11 @@ MonoBehaviour:
       type: 3}
   playerClasses:
   - className: Warrior
-    classDamage: 350
+    classDamage: 35
   - className: Mage
-    classDamage: 310
+    classDamage: 32
   - className: Archer
-    classDamage: 270
+    classDamage: 30
   playerColor:
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 0.015279897, g: 0.754717, b: 0.010679938, a: 1}

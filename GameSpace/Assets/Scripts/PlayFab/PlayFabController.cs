@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using PlayFab;
 using PlayFab.ClientModels;
-
+using Zenject;
 using System;
 using UnityEngine;
 using JsonObject = PlayFab.Json.JsonObject;
@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 public class PlayFabController : MonoBehaviour
 {
     public static PlayFabController singleton;
+    public List<TpsController> tpsControllers = new List<TpsController>();
     private LoginSceneUI loginSceneUI;
     private string email;
     private string password;
@@ -36,7 +37,24 @@ public class PlayFabController : MonoBehaviour
     public string playerSkill;
     private bool onload;
     public int playerColorIndex;
-
+    //
+    public DefaultInstaller.PlayerStat[] refStats;
+    public MyGameSettingInstaller.Skills[] refSkill;
+    public Color[] characterColor;
+    public MyGameSettingInstaller.AllClass[] classes;
+    //
+    public int teamWin;
+    public GameState gameState;
+    public int countPlayer;
+    public bool isGameEnd;
+    [Inject]
+    public void SetUpSkillAndClass( MyGameSettingInstaller.Skills[] refSkills_, MyGameSettingInstaller.AllClass[] allPlayerClasses, Color[] characterColor_, DefaultInstaller.PlayerStat[] playerStats_)
+    {
+        refSkill = refSkills_; // can use 
+        classes = allPlayerClasses;
+        characterColor = characterColor_;
+        refStats = playerStats_; // can use 
+    }
     private void OnEnable()
     {
         if (PlayFabController.singleton == null)
@@ -117,6 +135,65 @@ public class PlayFabController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         GetPlayerData();
      
+    }
+    public bool CheckPlayerAlive(int playerCount)
+    {
+        int alivePlayer = playerCount;
+        if (alivePlayer < 2)
+        {
+            return false;
+        }
+
+        if (gameState == GameState.LastManStanding)
+        {
+            if (tpsControllers.Count == 1)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            int teamACount = 0;
+            int teamBCount = 0;
+            for (int i = 0; i < tpsControllers.Count; i++)
+            {
+                if (tpsControllers[i].playerTeam == 1)
+                {
+                    teamACount++;
+                }
+                else
+                {
+                    teamBCount++;
+                }
+            }
+            if (teamACount == tpsControllers.Count)
+            {
+                teamWin = 1;
+                return true;
+            }
+            if (teamBCount == tpsControllers.Count)
+            {
+                teamWin = 2;
+                return true;
+            }
+        }
+
+        return isGameEnd;
+    }
+    public void CheckMissingGameObjectInPlayerList()
+    {
+        for (var i = tpsControllers.Count - 1; i > -1; i--)
+        {
+            if (tpsControllers[i] == null)
+                tpsControllers.RemoveAt(i);
+        }
+        if(tpsControllers.Count == 1)
+        {
+            if (CheckPlayerAlive(tpsControllers.Count))
+            {
+                isGameEnd = true;
+            }
+        }
     }
     void OnDisplayName(UpdateUserTitleDisplayNameResult result)
     {
