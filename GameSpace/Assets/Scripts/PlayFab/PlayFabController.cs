@@ -20,7 +20,6 @@ public class PlayFabController : MonoBehaviour
     private string myId = null;
     public string leaderBoardText;
     //
-
     public GameObject loginPanel;
     //
     private bool isSetPlayerData;
@@ -50,14 +49,16 @@ public class PlayFabController : MonoBehaviour
     public GameState gameState;
     public int countPlayer;
     public bool isGameEnd;
+
     [Inject]
     public void SetUpSkillAndClass( MyGameSettingInstaller.Skills[] refSkills_, MyGameSettingInstaller.AllClass[] allPlayerClasses, Color[] characterColor_, DefaultInstaller.PlayerStat[] playerStats_)
     {
-        refSkill = refSkills_; // can use 
+        refSkill = refSkills_; 
         classes = allPlayerClasses;
         characterColor = characterColor_;
-        refStats = playerStats_; // can use 
+        refStats = playerStats_; 
     }
+
     private void OnEnable()
     {
         if (PlayFabController.singleton == null)
@@ -78,7 +79,7 @@ public class PlayFabController : MonoBehaviour
         loginSceneUI = GetComponent<LoginSceneUI>();
         loginSceneUI.userInput.gameObject.SetActive(false);
         loginSceneUI.confirmPasswordInput.gameObject.SetActive(false);
-        GetInventory();
+       
     }
     private void Update()
     {
@@ -101,6 +102,7 @@ public class PlayFabController : MonoBehaviour
     {
         loginSceneUI.infoText.text = "Success Login";
         Debug.Log("Success Login");
+        GetInventory();
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
@@ -114,6 +116,7 @@ public class PlayFabController : MonoBehaviour
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
         Debug.Log("Success Register");
+        GetInventory();
         loginSceneUI.infoText.text = "Success Register";
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
@@ -512,13 +515,12 @@ public class PlayFabController : MonoBehaviour
             if (tpsControllers[i] == null)
                 tpsControllers.RemoveAt(i);
         }
-        if (tpsControllers.Count == 1)
-        {
+            
             if (CheckPlayerAlive(tpsControllers.Count))
             {
                 isGameEnd = true;
             }
-        }
+        
     }
 
     [System.Serializable]

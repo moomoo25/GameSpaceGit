@@ -15,18 +15,7 @@ public class GameSetUpController : MonoBehaviour
     private MyGameSettingInstaller.AllClass[] classes;
     private GameObject playerPref;
 
-
-    [Inject]
-    public void SetUpSkillAndClass(GameManager gameManager_, UIManager uimanager_,MyGameSettingInstaller.Skills[] refSkills_, MyGameSettingInstaller.AllClass[] allPlayerClasses, Color[] characterColor_, DefaultInstaller.PlayerStat[] playerStats_)
-    {
-        gameManager = gameManager_;
-        uiManager = uimanager_;
-        refSkill = refSkills_; // can use 
-        classes = allPlayerClasses;
-        characterColor = characterColor_;
-        refStats = playerStats_; // can use 
-
-    }
+ 
     [Inject]
     public void SettingPlayer(GameObject player_)
     {

@@ -80,35 +80,35 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   items:
   - itemName: Health Potion
-    itemSprite: {fileID: 0}
-    itemDescription: 
+    itemSprite: {fileID: 21300000, guid: 55df0b58c9444f641ae9c5c5f18ea21f, type: 3}
+    itemDescription: Heal Hp +50
   - itemName: Mana Potion
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
-  - itemName: 
-    itemSprite: {fileID: 0}
-    itemDescription: 
+    itemSprite: {fileID: 21300000, guid: b9ef4dd57797a8b4a91fc60df1833a98, type: 3}
+    itemDescription: Heal Mana + 50
+  - itemName: Warrior Scroll
+    itemSprite: {fileID: 21300000, guid: 1790737279c5eb24eaa1fdc26f6284a9, type: 3}
+    itemDescription: Change class to warrior.
+  - itemName: Mage Scroll
+    itemSprite: {fileID: 21300000, guid: 8186eab305336eb4db96d99d407b7a8b, type: 3}
+    itemDescription: Change class to mage.
+  - itemName: Archer Scroll
+    itemSprite: {fileID: 21300000, guid: 75fc6c3e1d3ceb44681fd9c537f5646b, type: 3}
+    itemDescription: Change class to archer.
+  - itemName: Human Scroll
+    itemSprite: {fileID: 21300000, guid: 3eab4bec7e5c87d4aba9cbee5d8162b4, type: 3}
+    itemDescription: Change race to human.
+  - itemName: Elf Scroll
+    itemSprite: {fileID: 21300000, guid: 54361b75c5ab5ff439a8da149fc35562, type: 3}
+    itemDescription: Change race to elf.
+  - itemName: Orc Scroll
+    itemSprite: {fileID: 21300000, guid: 9929bfb58815cff45bce402d030b1751, type: 3}
+    itemDescription: Change race to orc
+  - itemName: Holy Hammer
+    itemSprite: {fileID: 21300000, guid: ee309869e0f72864c947ec018ef73287, type: 3}
+    itemDescription: Change skill to Holy Hammer
+  - itemName: Laser Beam
+    itemSprite: {fileID: 21300000, guid: c2769b4a9f3c7ed47ae06499535a39f1, type: 3}
+    itemDescription: Change skill to laser beam.
+  - itemName: Rain Arrow
+    itemSprite: {fileID: 21300000, guid: 726d3a77c7bea9c468328999dd0dbb25, type: 3}
+    itemDescription: Change skill to rain arrow
