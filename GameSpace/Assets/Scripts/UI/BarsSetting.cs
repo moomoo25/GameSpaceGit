@@ -21,7 +21,8 @@ public class BarsSetting : MonoBehaviour
     [Header("Mana")]
     public Image manaBar;
     public Text manaText;
-
+    [Header("Potion")]
+    public Text healPotionText;
 
     [Inject]
     public void SettingUIManager(UIManager uIManager_)
@@ -43,6 +44,7 @@ public class BarsSetting : MonoBehaviour
             SetBar(staminaBar, staminaText, player.stamina, player.maxStamina);
             SetBar(hpBar, hpText, player.health, player.maxHealth);
             SetBar(manaBar, manaText, player.mana, player.maxMana);
+            healPotionText.text = ""+ player.healCount;
         }
     
    

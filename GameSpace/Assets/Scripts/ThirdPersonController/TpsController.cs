@@ -71,9 +71,11 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     [HideInInspector]
     public bool canMove = true;
 
+    [Header("Potion")]
+    public int healCount=1;
     
     public ParticleSystem bloodParticle;
-    private bool isAff;
+
     private float hpRegenCounter = 0;
     private float staminaRegenCounter = 0;
     private float manaRegenCounter = 0;
@@ -390,7 +392,14 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
                     }
                 }
             }
-
+            if (Input.GetKeyUp(KeyCode.Q))
+            {
+                if (healCount > 0)
+                {
+                    pv.RPC("RPC_HealPotion", RpcTarget.AllBuffered);
+                    healCount--;
+                }
+            }
             if (Input.GetButton("Jump") && canMove)
             {
                 moveDirection.y = jumpSpeed;
@@ -451,8 +460,12 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     {
         pv.RPC("RPC_CalculateDoDamge", RpcTarget.AllBuffered, damage);
     }
-   
 
+    [PunRPC]
+    public void RPC_HealPotion()
+    {
+        health += PlayFabController.singleton.GetHealValue();
+    }
     [PunRPC]
     public void RPC_CalculateDoDamge(float d)
     {

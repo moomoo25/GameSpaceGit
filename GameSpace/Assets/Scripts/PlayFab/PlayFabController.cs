@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using PlayFab;
 using PlayFab.ClientModels;
+
 using Zenject;
 using System;
 using UnityEngine;
@@ -44,11 +45,14 @@ public class PlayFabController : MonoBehaviour
     //
     public List<PlayerItems> items = new List<PlayerItems>();
     private string itemId;
+    private int healValue;
     //
     public int teamWin;
     public GameState gameState;
     public int countPlayer;
     public bool isGameEnd;
+
+    public object JSON { get; private set; }
 
     [Inject]
     public void SetUpSkillAndClass( MyGameSettingInstaller.Skills[] refSkills_, MyGameSettingInstaller.AllClass[] allPlayerClasses, Color[] characterColor_, DefaultInstaller.PlayerStat[] playerStats_)
@@ -86,7 +90,7 @@ public class PlayFabController : MonoBehaviour
        
         if (Input.GetKeyUp(KeyCode.X))
         {
-            MakePurchase();
+          
         }
         if (isGetPlayerData && isSetPlayerData)
         {
@@ -103,6 +107,7 @@ public class PlayFabController : MonoBehaviour
         loginSceneUI.infoText.text = "Success Login";
         Debug.Log("Success Login");
         GetInventory();
+        GetItemCatalog();
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
         loginPanel.SetActive(false);
@@ -117,6 +122,7 @@ public class PlayFabController : MonoBehaviour
     {
         Debug.Log("Success Register");
         GetInventory();
+        GetItemCatalog();
         loginSceneUI.infoText.text = "Success Register";
         PlayerPrefs.SetString("Email", email);
         PlayerPrefs.SetString("Password", password);
@@ -416,7 +422,23 @@ public class PlayFabController : MonoBehaviour
     }
     public void GetCatalogItems(GetCatalogItemsResult result)
     {
-        
+        foreach (var item in result.Catalog)
+        {
+            if (item.DisplayName == "Health Potion")
+            {
+
+                JSONObject j = new JSONObject(item.CustomData);
+                foreach (KeyValuePair<string, string> kvp in j.ToDictionary())
+                {
+                   healValue=int.Parse(kvp.Value);
+                    print(healValue);
+                }
+                   
+              
+            }
+        }
+      
+      
     }
   
     void MakePurchase()
@@ -522,7 +544,10 @@ public class PlayFabController : MonoBehaviour
             }
         
     }
-
+    public int GetHealValue()
+    {
+        return healValue;
+    }
     [System.Serializable]
     public struct PlayerItems
     {
