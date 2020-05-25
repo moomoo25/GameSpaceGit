@@ -78,3 +78,37 @@ MonoBehaviour:
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 0.015279897, g: 0.754717, b: 0.010679938, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
+  items:
+  - itemName: Health Potion
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: Mana Potion
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 
+  - itemName: 
+    itemSprite: {fileID: 0}
+    itemDescription: 

@@ -43,6 +43,9 @@ public class PlayFabController : MonoBehaviour
     public Color[] characterColor;
     public MyGameSettingInstaller.AllClass[] classes;
     //
+    public List<PlayerItems> items = new List<PlayerItems>();
+    private string itemId;
+    //
     public int teamWin;
     public GameState gameState;
     public int countPlayer;
@@ -75,16 +78,14 @@ public class PlayFabController : MonoBehaviour
         loginSceneUI = GetComponent<LoginSceneUI>();
         loginSceneUI.userInput.gameObject.SetActive(false);
         loginSceneUI.confirmPasswordInput.gameObject.SetActive(false);
+        GetInventory();
     }
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.P))
-        {
-            GetPlayerData();
-        }
+       
         if (Input.GetKeyUp(KeyCode.X))
         {
-            SetUserData("Warrior", "Human", "Holy Hammer", "0");
+            MakePurchase();
         }
         if (isGetPlayerData && isSetPlayerData)
         {
@@ -128,73 +129,8 @@ public class PlayFabController : MonoBehaviour
      
    
     }
-    IEnumerator LoadNextScene(bool isRegister)
-    {
-        if(isRegister)
-        SetUserData("Warrior", "Human", "Holy Hammer", "0");
-        yield return new WaitForEndOfFrame();
-        GetPlayerData();
-     
-    }
-    public bool CheckPlayerAlive(int playerCount)
-    {
-        int alivePlayer = playerCount;
-        if (alivePlayer < 2)
-        {
-            return false;
-        }
-
-        if (gameState == GameState.LastManStanding)
-        {
-            if (tpsControllers.Count == 1)
-            {
-                return true;
-            }
-        }
-        else
-        {
-            int teamACount = 0;
-            int teamBCount = 0;
-            for (int i = 0; i < tpsControllers.Count; i++)
-            {
-                if (tpsControllers[i].playerTeam == 1)
-                {
-                    teamACount++;
-                }
-                else
-                {
-                    teamBCount++;
-                }
-            }
-            if (teamACount == tpsControllers.Count)
-            {
-                teamWin = 1;
-                return true;
-            }
-            if (teamBCount == tpsControllers.Count)
-            {
-                teamWin = 2;
-                return true;
-            }
-        }
-
-        return isGameEnd;
-    }
-    public void CheckMissingGameObjectInPlayerList()
-    {
-        for (var i = tpsControllers.Count - 1; i > -1; i--)
-        {
-            if (tpsControllers[i] == null)
-                tpsControllers.RemoveAt(i);
-        }
-        if(tpsControllers.Count == 1)
-        {
-            if (CheckPlayerAlive(tpsControllers.Count))
-            {
-                isGameEnd = true;
-            }
-        }
-    }
+   
+ 
     void OnDisplayName(UpdateUserTitleDisplayNameResult result)
     {
         Debug.Log(result.DisplayName + "is your new display name");
@@ -453,4 +389,143 @@ public class PlayFabController : MonoBehaviour
         onload = false;
     }
     #endregion
+    #region Inventory
+  
+    public void GetInventory()
+    {
+        PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), OnGetInventory, error => Debug.LogError(error.GenerateErrorReport()));
+    }
+    public void OnGetInventory(GetUserInventoryResult result)
+    {
+        foreach (var eachItem in result.Inventory)
+        {
+            itemId = eachItem.ItemInstanceId;
+            PlayerItems itemList = new PlayerItems();
+            itemList.itemName = eachItem.DisplayName;
+            itemList.uses = eachItem.RemainingUses.ToString();
+            itemList.description = "";
+            items.Add(itemList);
+        }
+    }
+    public void GetItemCatalog()
+    {
+        PlayFabClientAPI.GetCatalogItems(new GetCatalogItemsRequest(), GetCatalogItems, error => Debug.LogError(error.GenerateErrorReport()));
+    }
+    public void GetCatalogItems(GetCatalogItemsResult result)
+    {
+        
+    }
+  
+    void MakePurchase()
+    {
+        PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
+        {
+            // In your game, this should just be a constant matching your primary catalog
+            CatalogVersion = "Items",
+            ItemId = "HealthPotion",
+            Price = 0,
+            VirtualCurrency = "AU"
+        }, PurchaseSuccess, LogFailure);
+    }
+    void PurchaseSuccess(PurchaseItemResult result)
+    {
+        Debug.Log(result + " successful");
+    }
+    //Consume
+    void ConsumePotion()
+    {
+        PlayFabClientAPI.ConsumeItem(new ConsumeItemRequest
+        {
+            ConsumeCount = 1,
+            // This is a hex-string value from the GetUserInventory result
+            ItemInstanceId = itemId
+        }, LogSuccess, LogFailure);
+    }
+    void LogSuccess(ConsumeItemResult result)
+    {
+        Debug.Log(result + " successful");
+    }
+
+    // Error handling can be very advanced, such as retry mechanisms, logging, or other options
+    // The simplest possible choice is just to log it
+    void LogFailure(PlayFabError error)
+    {
+        Debug.LogError(error.GenerateErrorReport());
+    }
+    #endregion
+    IEnumerator LoadNextScene(bool isRegister)
+    {
+        if (isRegister)
+            SetUserData("Warrior", "Human", "Holy Hammer", "0");
+        yield return new WaitForEndOfFrame();
+        GetPlayerData();
+
+    }
+    public bool CheckPlayerAlive(int playerCount)
+    {
+        int alivePlayer = playerCount;
+        if (alivePlayer < 2)
+        {
+            return false;
+        }
+
+        if (gameState == GameState.LastManStanding)
+        {
+            if (tpsControllers.Count == 1)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            int teamACount = 0;
+            int teamBCount = 0;
+            for (int i = 0; i < tpsControllers.Count; i++)
+            {
+                if (tpsControllers[i].playerTeam == 1)
+                {
+                    teamACount++;
+                }
+                else
+                {
+                    teamBCount++;
+                }
+            }
+            if (teamACount == tpsControllers.Count)
+            {
+                teamWin = 1;
+                return true;
+            }
+            if (teamBCount == tpsControllers.Count)
+            {
+                teamWin = 2;
+                return true;
+            }
+        }
+
+        return isGameEnd;
+    }
+    public void CheckMissingGameObjectInPlayerList()
+    {
+        for (var i = tpsControllers.Count - 1; i > -1; i--)
+        {
+            if (tpsControllers[i] == null)
+                tpsControllers.RemoveAt(i);
+        }
+        if (tpsControllers.Count == 1)
+        {
+            if (CheckPlayerAlive(tpsControllers.Count))
+            {
+                isGameEnd = true;
+            }
+        }
+    }
+
+    [System.Serializable]
+    public struct PlayerItems
+    {
+        public string itemName;
+        public string uses;
+        public string description;
+    }
 }

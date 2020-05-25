@@ -724,6 +724,7 @@ MonoBehaviour:
   refSkill: []
   characterColor: []
   classes: []
+  itemId: 
   teamWin: 0
   gameState: 0
   countPlayer: 0
