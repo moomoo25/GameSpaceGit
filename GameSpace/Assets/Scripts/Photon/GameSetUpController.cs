@@ -15,7 +15,12 @@ public class GameSetUpController : MonoBehaviour
     private MyGameSettingInstaller.AllClass[] classes;
     private GameObject playerPref;
 
- 
+    [Inject]
+    public void SettingGameManagerAndUiManager(GameManager gameManager_,UIManager uIManager_)
+    {
+        gameManager = gameManager_; // can use 
+        uiManager = uIManager_;
+    }
     [Inject]
     public void SettingPlayer(GameObject player_)
     {
@@ -40,7 +45,7 @@ public class GameSetUpController : MonoBehaviour
             if (photonPlayer != null)
             {
                // TestController.singleton.gameState = GameState.Team;
-                photonPlayer.SetUpCharacter(this.gameManager, this.uiManager, playerPref, PlayFabController.singleton.refStats, PlayFabController.singleton.refSkill, PlayFabController.singleton.characterColor, PlayFabController.singleton.classes);
+                photonPlayer.SetUpCharacter(gameManager, uiManager, playerPref, PlayFabController.singleton.refStats, PlayFabController.singleton.refSkill, PlayFabController.singleton.characterColor, PlayFabController.singleton.classes);
             }
            
         }

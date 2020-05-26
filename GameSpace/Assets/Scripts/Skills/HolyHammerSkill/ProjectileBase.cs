@@ -8,9 +8,12 @@ public class ProjectileBase : DamageBase
     private void Update()
     {
         Vector3 direction = transform.forward ;
-        transform.position += direction.normalized * speed;
+        transform.position += ( direction.normalized * speed * Time.deltaTime);
     }
-   
+    public void SetProjectileSpeed(float speedValue)
+    {
+        speed = speedValue;
+    }
     private void OnTriggerEnter(Collider other)
     {
         TpsController target = other.GetComponent<TpsController>();

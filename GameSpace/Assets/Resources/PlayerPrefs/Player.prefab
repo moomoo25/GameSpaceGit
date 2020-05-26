@@ -391,6 +391,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isProcess: 0
   isDead: 0
+  isShowModel: 0
   playerTeam: 0
   centerTransform: {fileID: 1861612628957673927}
   playerClass: Mage
@@ -423,6 +424,7 @@ MonoBehaviour:
   mageModel: {fileID: 1861612628963077973}
   archerModel: {fileID: 1861612629287943351}
   canMove: 1
+  healCount: 1
   bloodParticle: {fileID: 6037677973478686557}
   endGameCanvas: {fileID: 8849371086195530261, guid: 571f6655e48f67c40a01ed5360db3a34,
     type: 3}

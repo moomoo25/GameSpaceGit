@@ -5,11 +5,14 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+
 [RequireComponent(typeof(CharacterController))]
 public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 {
     public bool isProcess;
     public bool isDead;
+    public bool isShowModel;
     public int playerTeam;
     public Transform centerTransform;
     public string playerClass;
@@ -38,8 +41,8 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     [Header("BasicAttack")]
     public DamageBase damageCollider;
 
-    public DamageBase magicAttack;
-    public DamageBase arrowAttack;
+    public ProjectileBase magicAttack;
+    public ProjectileBase arrowAttack;
 
     [Header("ControllerSetting")]
     public float speed = 7.5f;
@@ -112,6 +115,12 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         rotation.y = transform.eulerAngles.y;
         meleeDamageCollider = damageCollider.GetComponent<BoxCollider>();
         meleeDamageCollider.enabled = false;
+
+        if (!isShowModel)
+        {
+            PlayFabController.singleton.tpsControllers.Add(this);
+        }
+
     }
     public void SetUpPlayerOffline(string race, string playerClass, string s, int color, int teamIndex)
     {
@@ -120,7 +129,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     }
     public void SetUpPlayer(string race,string playerClass,string s,int color,int teamIndex)
     {
-        PlayFabController.singleton.tpsControllers.Add(this);
+     
         pv.RPC("RPC_SetUpPlayerModel", RpcTarget.AllBuffered, race, playerClass, s,color, teamIndex);
     }
 
@@ -306,46 +315,50 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
                 uIManager.cooldownTime = 1 - (cooldownSkill / maxCooldownSkill);
             }
 
-            if (health < maxHealth)
+            if (pv.IsMine)
             {
-                hpRegenCounter += Time.deltaTime;
-                if (hpRegenCounter > 1)
+                if (health < maxHealth)
                 {
-                    health += regenHealth;
-                    hpRegenCounter = 0;
+                    hpRegenCounter += Time.deltaTime;
+                    if (hpRegenCounter > 1)
+                    {
+                        health += regenHealth;
+                        hpRegenCounter = 0;
+                    }
                 }
-            }
-            else
-            {
-                health = maxHealth;
-            }
+                else
+                {
+                    health = maxHealth;
+                }
 
-            if (stamina < maxStamina)
-            {
-                staminaRegenCounter += Time.deltaTime;
-                if (staminaRegenCounter > 1)
+                if (stamina < maxStamina)
                 {
-                    stamina += regenStamina;
-                    staminaRegenCounter = 0;
+                    staminaRegenCounter += Time.deltaTime;
+                    if (staminaRegenCounter > 1)
+                    {
+                        stamina += regenStamina;
+                        staminaRegenCounter = 0;
+                    }
+                }
+                else
+                {
+                    stamina = maxStamina;
+                }
+                if (mana < maxMana)
+                {
+                    manaRegenCounter += Time.deltaTime;
+                    if (manaRegenCounter > 1)
+                    {
+                        mana += regenMana;
+                        manaRegenCounter = 0;
+                    }
+                }
+                else
+                {
+                    mana = maxMana;
                 }
             }
-            else
-            {
-                stamina = maxStamina;
-            }
-            if (mana < maxMana)
-            {
-                manaRegenCounter += Time.deltaTime;
-                if (manaRegenCounter > 1)
-                {
-                    mana += regenMana;
-                    manaRegenCounter = 0;
-                }
-            }
-            else
-            {
-                mana = maxMana;
-            }
+         
         }
     }
 
@@ -396,8 +409,12 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
             {
                 if (healCount > 0)
                 {
-                    pv.RPC("RPC_HealPotion", RpcTarget.AllBuffered);
-                    healCount--;
+                    if (health < maxHealth)
+                    {
+                        pv.RPC("RPC_HealPotion", RpcTarget.AllBuffered);
+                        healCount--;
+                    }
+               
                 }
             }
             if (Input.GetButton("Jump") && canMove)
@@ -458,13 +475,18 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
 
     public void DoDamgeAction(float damage)
     {
+        
         pv.RPC("RPC_CalculateDoDamge", RpcTarget.AllBuffered, damage);
     }
 
     [PunRPC]
     public void RPC_HealPotion()
     {
-        health += PlayFabController.singleton.GetHealValue();
+        this.health += PlayFabController.singleton.GetHealValue();
+        if (this.health > this.maxHealth)
+        {
+            this.health = this.maxHealth;
+        }
     }
     [PunRPC]
     public void RPC_CalculateDoDamge(float d)
@@ -506,15 +528,22 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         }
         else if (playerClass == "Mage")
         {
-            DamageBase magic = Instantiate(magicAttack, v, GetCenterTransform().rotation);
-            magic.SetUpOwner(this);
-            magic.damage = playerDamage;
+
+
+            ProjectileBase magic = Instantiate(magicAttack,v, GetCenterTransform().rotation);
+                magic.SetUpOwner(this);
+                magic.damage = playerDamage;
+            
+
         }
         else if (playerClass == "Archer")
         {
-            DamageBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
+            
+                ProjectileBase arrow = Instantiate(arrowAttack, v, GetCenterTransform().rotation);
             arrow.SetUpOwner(this);
-            arrow.damage = playerDamage;
+                arrow.damage = playerDamage;
+            
+           
         }
     }
 
@@ -543,7 +572,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
             }
 
         }
-        print(PlayFabController.singleton.tpsControllers.Count);
+     
         if (PlayFabController.singleton.CheckPlayerAlive(PhotonNetwork.PlayerList.Length))
         {
             PlayFabController.singleton.isGameEnd = true;
@@ -584,23 +613,23 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     public void SwitchLevel()
     {
         isGameEnd = true;
-        
         StartCoroutine(DoSwitchLevel());
     }
     IEnumerator DoSwitchLevel()
     {
-        
+       
         PhotonNetwork.LeaveRoom();
         while (PhotonNetwork.InRoom)
         {
             yield return null;
         }
-  
-        SceneManager.LoadScene(1);
+        PhotonNetwork.LoadLevel(1);
+        PlayFabController.singleton.isGameEnd = false;
+        //SceneManager.LoadScene(1);
     }
     IEnumerator OnPlayerLeave()
     {
-
+        
         pv.RPC("RPC_OnPlayerLeave", RpcTarget.AllBuffered);
         yield return new WaitForEndOfFrame();
 
@@ -623,10 +652,13 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(isMoving);
+            stream.SendNext(isDead);
+         
         }
         else
         {
             isMovingFormOtherPV = (bool)stream.ReceiveNext();
+            isDead = (bool)stream.ReceiveNext();
         }
     }
 }

@@ -22,11 +22,11 @@ MonoBehaviour:
     regenHealth: 5
     stamina: 100
     maxStamina: 100
-    regenStamina: 4
+    regenStamina: 9
     mana: 50
     maxMana: 50
     regenMana: 3
-    attackUseStamina: 28
+    attackUseStamina: 25
   - iconRace: {fileID: 21300000, guid: 9929bfb58815cff45bce402d030b1751, type: 3}
     characterRace: Orc
     currentHealth: 220
@@ -34,11 +34,11 @@ MonoBehaviour:
     regenHealth: 7
     stamina: 120
     maxStamina: 120
-    regenStamina: 5
+    regenStamina: 10
     mana: 50
     maxMana: 50
     regenMana: 1
-    attackUseStamina: 20
+    attackUseStamina: 22
   - iconRace: {fileID: 21300000, guid: 54361b75c5ab5ff439a8da149fc35562, type: 3}
     characterRace: Elf
     currentHealth: 140
@@ -46,11 +46,11 @@ MonoBehaviour:
     regenHealth: 5
     stamina: 90
     maxStamina: 90
-    regenStamina: 3
+    regenStamina: 9
     mana: 80
     maxMana: 80
     regenMana: 10
-    attackUseStamina: 20
+    attackUseStamina: 26
   skills:
   - skillName: Arrow Rain
     skillIcon: {fileID: 21300000, guid: 726d3a77c7bea9c468328999dd0dbb25, type: 3}
@@ -71,9 +71,9 @@ MonoBehaviour:
   - className: Warrior
     classDamage: 35
   - className: Mage
-    classDamage: 32
+    classDamage: 39
   - className: Archer
-    classDamage: 30
+    classDamage: 27
   playerColor:
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 0.015279897, g: 0.754717, b: 0.010679938, a: 1}

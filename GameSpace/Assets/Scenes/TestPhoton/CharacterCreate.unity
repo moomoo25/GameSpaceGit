@@ -153,7 +153,7 @@ MonoBehaviour:
   StartLastManStandinButton: {fileID: 283381384}
   StartTeamButton: {fileID: 1876363803}
   quickCancleButton: {fileID: 879272179}
-  roomSize: 6
+  roomSize: 4
 --- !u!114 &1397878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -554,7 +554,7 @@ PrefabInstance:
     - target: {fileID: 1861612629720082067, guid: 3cb9bfd5a074f2d4caf212713d669fa0,
         type: 3}
       propertyPath: m_Name
-      value: Player (1)
+      value: PlayerModel
       objectReference: {fileID: 0}
     - target: {fileID: 1861612629720082076, guid: 3cb9bfd5a074f2d4caf212713d669fa0,
         type: 3}
@@ -610,6 +610,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1861612629720082066, guid: 3cb9bfd5a074f2d4caf212713d669fa0,
+        type: 3}
+      propertyPath: isShowModel
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3143630821582400034, guid: 3cb9bfd5a074f2d4caf212713d669fa0,
         type: 3}
@@ -5421,6 +5426,7 @@ MonoBehaviour:
   staminaText: {fileID: 1151345270}
   manaBar: {fileID: 86696734}
   manaText: {fileID: 310065920}
+  healPotionText: {fileID: 0}
 --- !u!1 &1583557530
 GameObject:
   m_ObjectHideFlags: 0

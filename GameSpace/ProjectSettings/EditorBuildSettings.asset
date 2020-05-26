@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LoginScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Scenes/CharacterCreate.unity
+    path: Assets/Scenes/TestPhoton/CharacterCreate.unity
     guid: ccdf9ef5567f45b46ae85bb67c4ff2f8
   - enabled: 1
     path: Assets/Scenes/TestPhoton/DelayStart.unity

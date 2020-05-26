@@ -23,9 +23,9 @@ public class PlayFabController : MonoBehaviour
     //
     public GameObject loginPanel;
     //
-    private bool isSetPlayerData;
-    private bool isGetPlayerData;
-    private bool isSuccessOperaion;
+    public bool isSetPlayerData;
+    public bool isGetPlayerData;
+    public bool isSuccessOperaion;
     //Stats
     public float playerHealth_;
     public float playerDamage_;
@@ -129,6 +129,7 @@ public class PlayFabController : MonoBehaviour
         loginPanel.SetActive(false);
         PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = username }, OnDisplayName, OnPlayFabError);
         GetLeaderboard();
+    
         playerHealth_ = 100;
         playerDamage_ = 10;
         playerHighScore_ = 0;
@@ -345,6 +346,7 @@ public class PlayFabController : MonoBehaviour
             playerColorIndex = int.Parse(result.Data["colorIndex"].Value);
            isGetPlayerData = true;
         }
+       
     }
     void UserDataFailed(PlayFabError error)
     {
@@ -367,6 +369,7 @@ public class PlayFabController : MonoBehaviour
     void SetDataSuccess(UpdateUserDataResult result)
     {
         isSetPlayerData = true;
+     
         Debug.Log(result.DataVersion);
     }
     public void EditPlayerData(string playerClass, string playerRace, string playerSkill, string playerColorIndex)
@@ -481,18 +484,22 @@ public class PlayFabController : MonoBehaviour
     IEnumerator LoadNextScene(bool isRegister)
     {
         if (isRegister)
+        {
             SetUserData("Warrior", "Human", "Holy Hammer", "0");
-        yield return new WaitForEndOfFrame();
+        }
+        while(isSetPlayerData == false)
+        {
+            yield return null;
+        }
         GetPlayerData();
+        yield return 0;
+  
 
     }
     public bool CheckPlayerAlive(int playerCount)
     {
-        int alivePlayer = playerCount;
-        if (alivePlayer < 2)
-        {
-            return false;
-        }
+        int alivePlayer = tpsControllers.Count;
+    
 
         if (gameState == GameState.LastManStanding)
         {
@@ -537,12 +544,15 @@ public class PlayFabController : MonoBehaviour
             if (tpsControllers[i] == null)
                 tpsControllers.RemoveAt(i);
         }
-            
+        if (tpsControllers.Count == 1)
+        {
             if (CheckPlayerAlive(tpsControllers.Count))
             {
                 isGameEnd = true;
             }
-        
+
+        }
+
     }
     public int GetHealValue()
     {

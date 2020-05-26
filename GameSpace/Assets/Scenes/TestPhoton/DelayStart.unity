@@ -265,7 +265,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   multiplayerSceneIndex: 3
   menuSceneIndex: 0
-  minPlayerToStart: 2
+  minPlayerToStart: 4
   playerCountDisplay: {fileID: 240085634}
   timerToStartDisplay: {fileID: 355307558}
   modeDetail: {fileID: 1563813344}
