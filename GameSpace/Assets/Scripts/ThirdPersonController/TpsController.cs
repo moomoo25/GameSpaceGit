@@ -252,7 +252,7 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
        
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-            StartCoroutine(DoSwitchLevel());
+            SwitchLevel();
             }
         
       
@@ -612,12 +612,20 @@ public class TpsController : MonoBehaviourPunCallbacks,IPunObservable
     
     public void SwitchLevel()
     {
+        if (!PhotonNetwork.InRoom)
+        {
+            return;
+        }
         isGameEnd = true;
         StartCoroutine(DoSwitchLevel());
     }
     IEnumerator DoSwitchLevel()
     {
-       
+        if (!PhotonNetwork.InRoom)
+        {
+            yield return null;
+        }
+
         PhotonNetwork.LeaveRoom();
         while (PhotonNetwork.InRoom)
         {

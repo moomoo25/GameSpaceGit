@@ -73,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 15
-  speed: 15
+  speed: 16.5
 --- !u!1001 &8383143068444717913
 PrefabInstance:
   m_ObjectHideFlags: 0
